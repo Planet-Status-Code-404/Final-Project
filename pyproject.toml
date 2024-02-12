@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "final-project"
+version = "0.1.0"
+description = "A chatbot to chat about Climate Change"
+authors = ["gregthemitch <gmitchelljr@uchicago.edu>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+ollama-python = "^0.1.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
