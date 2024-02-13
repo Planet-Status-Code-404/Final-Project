@@ -32,26 +32,3 @@ Climate vulnerability, and related topics.
 '''
 
 ollama.create(model='PSC404', modelfile=modelfile)
-
-class llm_function():
-    def __init__(self, json_str: str):
-        self.json_str = json_str
-        self.function = json_str["function"]
-        self.parameters = json_str["parameters"]
-        self.condtions = json_str["conditions"]
-
-    def construct_where_clause(self):
-        sql_clauses: {
-            
-
-        }
-
-        sql_args: {
-            
-        }
-        
-
-    def construct_SQL_query(self):
-        
-
-        
