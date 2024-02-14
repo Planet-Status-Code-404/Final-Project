@@ -10,9 +10,9 @@ class json_function_call:
 
     def __init__(self, json_object: str):
         
-        self.func_name = json_object["function"].upper()
-        self.parameters = json_object["parameters"]
-        self.conditions = json_object["conditions"]
+        self.func_name = json_object["function_name"].upper()
+        self.parameters = [param.lower() for param in json_object["parameters"]]
+        self.conditions = [cond.lower() for cond in json_object["conditions"]]
 
     def verify_function(self, available_functions: List[str]):
         """
@@ -41,89 +41,89 @@ class json_function_call:
         return errant_params
 
 
-class agent_functions:
-    """
+# class agent_functions:
+#     """
 
-    """
+#     """
 
-    def __init__(self, json_function: json_function_call):
-        self.function_call = json_function
-        self.func_name = json_function.func_name
-        self.parameters = json_function.parameters
-        self.conditions = json_function.conditions
+#     def __init__(self, json_function: json_function_call):
+#         self.function_call = json_function
+#         self.func_name = json_function.func_name
+#         self.parameters = json_function.parameters
+#         self.conditions = json_function.conditions
 
-        self.simple_functions = [
-            # The next 8 functions are the "simple" functions
-            "SUM",
-            "COUNT",
-            "MAX",
-            "MIN",
-            "MEAN",
-            "MEDIAN",
-            "VAR",
-            "STD"
-        ]
+#         self.simple_functions = [
+#             # The next 8 functions are the "simple" functions
+#             "SUM",
+#             "COUNT",
+#             "MAX",
+#             "MIN",
+#             "MEAN",
+#             "MEDIAN",
+#             "VAR",
+#             "STD"
+#         ]
 
-        self.complex_functions = [
-            # The next 4 functions are the "complex" functions
-            "STATUS", # What is the state of some parameter with or without some condition
-            "TOP_K", # The top k of some parameter
-            "BOTTOM_K", # The bottom k of some parameter
-            "MAP" # Generate a map based on the parameters and conditions
-        ]
+#         self.complex_functions = [
+#             # The next 4 functions are the "complex" functions
+#             "STATUS", # What is the state of some parameter with or without some condition
+#             "TOP_K", # The top k of some parameter
+#             "BOTTOM_K", # The bottom k of some parameter
+#             "MAP" # Generate a map based on the parameters and conditions
+#         ]
 
-        self.available_functions = self.simple_functions + self.complex_functions
+#         self.available_functions = self.simple_functions + self.complex_functions
 
-    def verify_inputs(self):
-        if 
+#     def verify_inputs(self):
+#         if 
 
-    def construct_sql_query(self):
+#     def construct_sql_query(self):
 
 
 
-class function_calling_agent(ollama.Client):
-    """
-    Agent to convert natural language to function calls.
+# class function_calling_agent(ollama.Client):
+#     """
+#     Agent to convert natural language to function calls.
 
-    """
+#     """
 
-    def __init__(self) -> None:
-        self.model_name = "PSC404"
-        self.system_message = \
-        """
+#     def __init__(self) -> None:
+#         self.model_name = "PSC404"
+#         self.system_message = \
+#         """
 
-        """
-        self.context = None
-        super().__init__()
+#         """
+#         self.context = None
+#         super().__init__()
 
-    def get_json(self, prompt: str):
-        """
+#     def get_json(self, prompt: str):
+#         """
 
-        """
-        json_output = self.generate(
-            model=self.model_name,
-            prompt=prompt,
-            system=self.system_message,
-            context=self.context
-            format='json'
-        )
-        self.context = json_output["context"]
+#         """
+#         json_output = self.generate(
+#             model=self.model_name,
+#             prompt=prompt,
+#             system=self.system_message,
+#             context=self.context
+#             format='json'
+#         )
+#         self.context = json_output["context"]
         
-        return json.loads(json_output["response"].replace("\\", ""))["queries"]
+#         return json.loads(json_output["response"].replace("\\", ""))["queries"]
     
 
     
-    def call_functions(self, prompt: str):
-        """
+#     def call_functions(self, prompt: str):
+#         """
 
-        """
+#         """
 
-        for function_call in self.get_json(prompt):
-            json_function = json_function_call(function_call)
+#         for function_call in self.get_json(prompt):
+#             json_function = json_function_call(function_call)
 
-            func = json_function.function
-            parameters = json_function.parameters
-            conditions = json_function.conditions
+#             func = json_function.function
+#             parameters = json_function.parameters
+#             conditions = json_function.conditions
 
 
             
@@ -135,73 +135,73 @@ class function_calling_agent(ollama.Client):
 
 
 
-message = [
-    { "role": "system", 
-     "content":
-         """
-        <s>[INST] 
+# message = [
+#     { "role": "system", 
+#      "content":
+#          """
+#         <s>[INST] 
 
-        You are a helpful code assistant mean to help with data analysis. Your task is to generate a valid JSON 
-        object from a user's input. Only respond in JSON format. Do not elaborate after outputting 
-        JSON. 
+#         You are a helpful code assistant mean to help with data analysis. Your task is to generate a valid JSON 
+#         object from a user's input. Only respond in JSON format. Do not elaborate after outputting 
+#         JSON. 
 
-        These are the available functions and their descriptions:
-            "mean": "take the average or mean"
-            "sum": "sums a variable across a dataset"
-            "count": "counts something across a dataset"
+#         These are the available functions and their descriptions:
+#             "mean": "take the average or mean"
+#             "sum": "sums a variable across a dataset"
+#             "count": "counts something across a dataset"
 
-        The following example:
+#         The following example:
 
-        What is the average Climate index in Chicago? 
+#         What is the average Climate index in Chicago? 
 
-        Should be converted to [/INST]
+#         Should be converted to [/INST]
 
-        "queries": [
-            {
-                "filter": "Chicago",
-                "function_name": "average",
-                "function_parameters": "Climate index"
-            }
-        ]
+#         "queries": [
+#             {
+#                 "filter": "Chicago",
+#                 "function_name": "average",
+#                 "function_parameters": "Climate index"
+#             }
+#         ]
 
-        [INST] Here is another example:
+#         [INST] Here is another example:
 
-        What is the total population in Salt Lake City, Utah?
+#         What is the total population in Salt Lake City, Utah?
 
-        Should be converted to [/INST]
+#         Should be converted to [/INST]
 
-        "queries": [
-            {
-                "filter": "Salt Lake City, Utah",
-                "function_name": "sum",
-                "function_parameters": "population"
-            }
-        ]
+#         "queries": [
+#             {
+#                 "filter": "Salt Lake City, Utah",
+#                 "function_name": "sum",
+#                 "function_parameters": "population"
+#             }
+#         ]
     
-        [INST] Here is another example:
+#         [INST] Here is another example:
 
-        "How many rivers are in Arizona? Also how many people live in Evanston, Illinois?"
+#         "How many rivers are in Arizona? Also how many people live in Evanston, Illinois?"
 
-        Should be converted to [/INST]
+#         Should be converted to [/INST]
 
-        "queries": [
-            {
-                "filter": "Arizona",
-                "function_name": "count",
-                "function_parameters": "rivers"
-            },
-            {
-                "filter": "Evanston, Illinois",
-                "function_name": "sum",
-                "function_parameters": "population"
-            }
-        ]
+#         "queries": [
+#             {
+#                 "filter": "Arizona",
+#                 "function_name": "count",
+#                 "function_parameters": "rivers"
+#             },
+#             {
+#                 "filter": "Evanston, Illinois",
+#                 "function_name": "sum",
+#                 "function_parameters": "population"
+#             }
+#         ]
 
-        [INST] "how many trees are in my zip code, 60617" [/INST]
+#         [INST] "how many trees are in my zip code, 60617" [/INST]
 
-        </s>
+#         </s>
 
-    """
+#     """
 
         
 

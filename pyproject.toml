@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "final-project"
+name = "chatbot"
 version = "0.1.0"
 description = "A chatbot to chat about Climate Change"
 authors = ["gregthemitch <gmitchelljr@uchicago.edu>"]
@@ -15,3 +15,10 @@ pytest = "^8.0.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+# Solution from https://stackoverflow.com/questions/10253826/path-issue-with-pytest-importerror-no-module-named
+# Adds home directory to sys.paths for modules
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]
