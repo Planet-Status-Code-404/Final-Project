@@ -2,6 +2,9 @@ import ollama
 import json
 from typing import List, Dict
 from inflect import engine
+from matplotlib.colors import is_color_like
+
+# See here about setting up on google colab: https://stackoverflow.com/questions/77697302/how-to-run-ollama-in-google-colab
 
 class json_function_call:
     """
@@ -26,6 +29,13 @@ class json_function_call:
         if self.func_name not in available_functions:
             return self.func_name
         return None
+    
+    def valid_color_for_map() -> None :
+        """
+        Need to check the "color" parameter to determine if it is a valid color to be mapped
+        """
+        # Use is_color_like to verify 
+        # is_color_like()
 
     def verify_parameters(self, available_parameters: List[str]):
         """
@@ -35,6 +45,8 @@ class json_function_call:
           None - if the parameter name is in the database
           parameter name - if the parameter name is not in the database
         """
+        # Should probably set up parameter calls as dictionaries
+        # Need to check color for map
         errant_params = []
         for param in self.parameters:
             if param not in available_parameters:
@@ -107,7 +119,9 @@ class agent_functions:
     def get_available_parameters(self) -> List[str]:
         """
         Use the SQL schema to get the available column names as potential 
-        parameters
+        parameters.
+
+        For complex funcctions, will need to get more complex things
         """
         pass
 
@@ -139,14 +153,18 @@ class agent_functions:
 
         pass
 
-    def request_map(self) -> str:
+    def request_map(self, color="choose default color") -> str:
         """
          
         """
+        #use import colour to generate a color scale for the map
+        # https://pypi.org/project/colour/
 
+        # Use fisher-jenks natural breaks
+        # https://github.com/mthh/jenkspy
         pass
 
-    def get_data():
+    def get_data() -> str:
         """
         
         """
@@ -204,7 +222,11 @@ class function_calling_agent(ollama.Client):
         # Consider making the resubmitted prompt more complicated
         # Tell it to choose from a list of potential options
         json_func_object = self.get_json(
-            prompt=f"{agent_function_call.correction_message} Please try again."
+            prompt=
+            f"{agent_function_call.correction_message}\n"
+            f"The possible function values are {agent_function_call.available_functions}\n"
+            f"The possible parameter values are {agent_function_call.available_parameters}\n"
+            "Please try again."
         )
         new_function_call = agent_functions(json_func_object)
         new_message = new_function_call.correction_needed
@@ -214,7 +236,6 @@ class function_calling_agent(ollama.Client):
                 return new_request
 
         return new_function_call
-
 
     def call_functions(self, prompt: str):
         """
