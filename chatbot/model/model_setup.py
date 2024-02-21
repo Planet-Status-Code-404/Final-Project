@@ -1,5 +1,5 @@
 import ollama
-from chatbot.model.system_messages import SYSTEM_FUNCTION_CALLING
+from chatbot.model.system_messages import SYSTEM_MESSAGE_FUNCTION_CALLING
 
 def model_setup():
     """
@@ -22,15 +22,12 @@ def model_setup():
     assert status_code["status"] == "success", \
     "Mistral 7b did not successfully install, please try again"
 
-    modelfile= \
-    """
-    FROM mistral
+    modelfile= (""
+    "FROM mistral\n"
+    "PARAMETER temperature .5\n"
+    "SYSTEM You are a helpful, friendly, and concise chatbot meant to help people"
+    "explore data related to Climate Change and related equity issues.")
 
-    PARAMETER temperature .5
+    ollama.create(model="PSC404", modelfile=modelfile)
 
-    SYSTEM
-    """
-
-    modelfile =+ SYSTEM_FUNCTION_CALLING
-
-    ollama.create(model='test', modelfile=modelfile)
+#export OLLAMA_HOST=https://e4c3-34-133-137-244.ngrok-free.app

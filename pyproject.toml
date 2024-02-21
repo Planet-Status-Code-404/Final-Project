@@ -12,6 +12,9 @@ pytest = "^8.0.0"
 inflect = "^7.0.0"
 matplotlib = "^3.8.2"
 ollama = "^0.1.6"
+ipykernel = "^6.29.2"
+pyngrok = "^7.1.2"
+ngrok-api = "^0.10.0"
 
 
 [build-system]

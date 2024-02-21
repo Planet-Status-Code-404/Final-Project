@@ -195,6 +195,8 @@ SYSTEM_MESSAGE_FUNCTION_CALLING = \
         }
     ]
 
+    What is the percent black in Tennessee?
+
     </s>
 
 
