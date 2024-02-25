@@ -1,57 +1,192 @@
 import ollama
 import json
-from typing import List, Dict
+from typing import List, Dict, Type
 from inflect import engine
 from matplotlib.colors import is_color_like
 
-# See here about setting up on google colab: https://stackoverflow.com/questions/77697302/how-to-run-ollama-in-google-colab
 
-class json_function_call:
+# Dictionary to define the available functions and whether they are simple or complex
+FUNCTIONS = {
+    "simple": {"SUM", "COUNT", "MAX", "MIN", "MEAN", "MEDIAN"},
+    
+    "complex": {
+        "FIND_TOP_K", # The top k of some parameter
+        "STATUS", # What is the state of some parameter with or without some condition
+        "MAP" # Generate a map based on the parameters and conditions
+    }
+}
+
+# Dictionary to define all the available variable names and which table they're in
+VAR_NAMES = {
+    "var_name": "SQL table name"
+}
+
+#Dictionary to define the potential errors that may be raised due to issues in JSON output
+ERRORS = {
+    "invalid function name": "The 'function_name' outputted to JSON was not one of the valid functions listed",
+    "invalid function format": "The structure of the JSON output missed an important and required aspect necessary to output the correct response", 
+    "invalid parameter name": "The 'parameter' outputted to JSON was not one of the valid parameters listed"
+}
+
+DEFAULT_MAP_COLOR = "Blue"
+
+
+class json_response:
     """
-    A single function json object outputted from a function calling agent
+    A single function json object outputted from a function calling agent.
+    Parses the inputted JSON and assign the function name, parameters, and
+    conditions associated with the function.
 
     """
 
     def __init__(self, json_object: str):
         
         self.func_name = json_object["function_name"].upper()
-        self.parameters = [param.lower() for param in json_object["parameters"]]
-        self.conditions = [cond.lower() for cond in json_object["conditions"]]
+        self.type = self._set_type()
+        
+        self.set_parameters(json_object)
 
-    def verify_function(self, available_functions: List[str]):
+        self.errors = []
+
+    def is_available_function(self):
         """
         Verifies that the function of the function call is a legal function.
 
         Returns:
-          Nothing - if the function is legal
-          Function name - if the the function name is not available
+
         """
-        if self.func_name not in available_functions:
-            return self.func_name
-        return None
+        return self.func_name in FUNCTIONS["simple"] or\
+            self.func_name in FUNCTIONS["complex"]
     
-    def valid_color_for_map() -> None :
+    def _set_type(self):
+        if not self.is_available_function():
+            return None
+        if self.func_name not in FUNCTIONS["simple"]:
+            return "complex"
+        return "simple" 
+    
+    def _parse_top_k_params(self, raw: str):
+        if len(raw) == 3 and raw[0].isdigit():
+            k, select_column, reported_variable = raw
+            return k, select_column, reported_variable
+        
+        elif len(raw) == 2 and raw[0].isdigit():
+            k, select_column = raw
+            reported_variable = select_column
+            return k, select_column, reported_variable
+        
+        else:
+            return ("invalid function format", "FIND_TOP_K")
+        
+    def _parse_status_params(self, raw: str):
+
+        if len(raw) == 3 and raw[0] in FUNCTIONS["simple"]:
+            function_name, select_column, reported_variable = raw
+            return function_name, select_column, reported_variable
+        
+        elif len(raw) == 2 and raw[0] in FUNCTIONS["simple"]:
+            function_name, select_column = raw
+            reported_variable = select_column
+            return function_name, select_column, reported_variable
+        
+        else:
+            return ("invalid function format", "STATUS")
+        
+    def _parse_map_params(self, raw: str):
+        if raw[0] not in VAR_NAMES:
+            # Variable to be mapped has not been specified
+            return ("invalid function format", "MAP")
+        
+        param_dict = {"select_column": raw[0]}
+
+        for p in raw[1:]:
+            if self.valid_color_for_map(p):
+                param_dict["color"] = p
+            if self.is_location(p):
+                param_dict["location"] = p
+
+        return param_dict        
+        
+    def set_parameters(self, json_object: str) -> None:
+        """
+        Sets parameters based on the function specified in the call
+        
+        """
+        # Simple
+        raw_params = [param.lower() for param in json_object["parameters"]]
+        if self.type == "simple":
+            self.parameters = {"column": raw_params[0]}
+
+        # Top k
+        if self.func_name == "FIND_TOP_K":
+            output = self._parse_top_k_params(raw_params)
+            if output != ("invalid function format", "FIND_TOP_K"):
+                k, select_column, reported_variable = output
+                self.parameters = {
+                    "k": k,
+                    "select_columns": select_column,
+                    "reported_variable": reported_variable
+                }
+            self.errors.append(output)
+
+        # Status
+        if self.func_name == "STATUS":
+            output = self._parse_status_params(raw_params)
+            if output != ("invalid function format", "STATUS"):
+                function_name, select_column, reported_variable = output
+                self.parameters = {
+                    "function_name": function_name,
+                    "select_columns": select_column,
+                    "reported_variable": reported_variable
+                }
+            self.errors.append(output)
+
+        # Map
+        if self.func_name == "MAP":
+            output = self._parse_map_params(raw_params)
+            if output != ("invalid function format", "STATUS"):
+                self.parameters = {
+                    "select_columns": output.get("select_columns"),
+                    "color": output.get("color", DEFAULT_MAP_COLOR),
+                    "location": output.get("location", None)
+                }
+            self.errors.append(output)
+
+
+    def is_location():
+        """
+        Function to determine whether a string is a valid location.
+        
+        Must check that zip code is valid
+        Determine if state, city, county
+
+        Likely can produce list available locations in dataset and use that to compare
+
+        Fuzzy matching?
+        """
+        pass
+
+    
+    def valid_color_for_map(self, color_str: str) -> None :
         """
         Need to check the "color" parameter to determine if it is a valid color to be mapped
         """
-        # Use is_color_like to verify 
-        # is_color_like()
+        if is_color_like(color_str):
+            return color_str
+        
+        dual_color = color_str.split("-")
+        for color in dual_color:
+            if not is_color_like(color):
+                return DEFAULT_MAP_COLOR
+        
+        return color_str
 
-    def verify_parameters(self, available_parameters: List[str]):
-        """
-        Verifies that the paramaters of the function call are all valid.
-
-        Returns:
-          None - if the parameter name is in the database
-          parameter name - if the parameter name is not in the database
-        """
-        # Should probably set up parameter calls as dictionaries
-        # Need to check color for map
-        errant_params = []
-        for param in self.parameters:
-            if param not in available_parameters:
-                errant_params.append(param)
-        return errant_params
+    def __eq__(self, other: Type[json_response]) -> bool:
+        return (
+            self.func_name == other.func_name and
+            self.parameters == other.parameters and
+            self.conditions == other.conditions
+        )
 
 
 class agent_functions:
@@ -60,7 +195,7 @@ class agent_functions:
     """
 
     def __init__(self, json_object: str):
-        self.function_call = json_function_call(json_object)
+        self.function_call = json_response(json_object)
         self.func_name = self.function_call.func_name
         self.parameters = self.function_call.parameters
         self.conditions = self.function_call.conditions
@@ -186,6 +321,8 @@ class function_calling_agent(ollama.Client):
         """
         self.context = None
         super().__init__()
+        self.host = ""
+        
 
     def get_json(self, prompt: str) -> List[Dict]:
         """

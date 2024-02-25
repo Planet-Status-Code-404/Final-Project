@@ -575,6 +575,17 @@ qa = ["flake8 (==5.0.4)", "mypy (==0.971)", "types-setuptools (==67.2.0.1)"]
 testing = ["Django", "attrs", "colorama", "docopt", "pytest (<7.0.0)"]
 
 [[package]]
+name = "json-repair"
+version = "0.9.0"
+description = "A package to repair broken json strings"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "json_repair-0.9.0-py3-none-any.whl", hash = "sha256:962a7a5c9cc8a07175aa511f7d89d1049e6bcaad43ce31ec1a40d0ba48a19538"},
+    {file = "json_repair-0.9.0.tar.gz", hash = "sha256:56c5fdc868d59e87aa5efd76ea483ed0ff819d6c02e64175cac17fd4c2792318"},
+]
+
+[[package]]
 name = "jupyter-client"
 version = "8.6.0"
 description = "Jupyter protocol implementation and client libraries"
@@ -1642,4 +1653,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "bc28052e99de51cbe8a613b42e49aed4e2a968c91ec75d0bd04b0b683897e972"
+content-hash = "34da4501b4667bff644ef16037687e501da300de19a1f7c76eea89c71fe8907f"
