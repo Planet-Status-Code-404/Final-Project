@@ -2,30 +2,24 @@ import os
 from dotenv import load_dotenv
 import requests
 import json
+import sqlite3
 import pandas as pd
 
+# Need to use provided API key offline
 load_dotenv()
 api_key = os.getenv("CENSUS_API_KEY")
 
-# Loading Community Resilience Estimates for Counties
-params_cre = {
-    "get": "NAME,PRED0_E,PRED0_PE,PRED12_E,PRED12_PE,PRED3_E,PRED3_PE",
-    "for": "county:*",
-    "key": api_key,
-}
-url = "https://api.census.gov/data/2022/cre?"
-response = requests.get(url, params=params_cre)
 
-# Write data as pandas dataframe
-data = response.json()
+def load_dataframe(response):
+    data_json = response.json()
+    columns = data_json[0]
+    rows = data_json[1:]
+    dataframe = pd.DataFrame(rows, columns=columns)
+    return dataframe
 
-columns = data[0]
-rows = data[1:]
-cre_df = pd.DataFrame(rows, columns=columns)
-# print(cre_df.head())
 
 ## 2020 Decennial Census
-# Demographic and Housing Characteristics(DHC-A): Sex and Age County-Wise Dataset
+# Demographic and Housing Characteristics(DHC-A): Sex and Age County-Wise Data
 variable_guide_dhca = "https://api.census.gov/data/2020/dec/ddhca/variables.html"
 url_dhca = "https://api.census.gov/data/2020/dec/ddhca?"
 dhca_variable_dictionary = {
@@ -47,12 +41,7 @@ params_dhca = {
 }
 response_ddhca = requests.get(url_dhca, params=params_dhca)
 
-# Load data in Json
-ddhca_data = response_ddhca.json()
-columns_ddhca = ddhca_data[0]
-rows_ddhca = ddhca_data[1:]
-
-ddhca_df = pd.DataFrame(rows_ddhca, columns=columns_ddhca)
+ddhca_df = load_dataframe(response_ddhca)
 
 # Renaming column names
 # Mapping old column names to new ones
@@ -61,6 +50,7 @@ column_mapping = {
     for old_name in ddhca_df.columns
 }
 ddhca_df = ddhca_df.rename(columns=column_mapping)
+print(ddhca_df.head())
 
 # Demographic and Housing Characteristics(DHC): Race and Housing Characteristics
 variable_guide_dhc = "https://api.census.gov/data/2020/dec/dhc/variables.html"
@@ -85,12 +75,9 @@ params_dhc = {
     "key": api_key,
 }
 response_ddhc = requests.get(url_dhc, params=params_dhc)
-# Load data in Json
-ddhc_data = response_ddhc.json()
-columns_ddhc = ddhc_data[0]
-rows_ddhc = ddhc_data[1:]
 
-ddhc_df = pd.DataFrame(rows_ddhc, columns=columns_ddhc)
+ddhc_df = load_dataframe(response_ddhc)
+
 # Renaming column names
 # Mapping old column names to new ones
 column_mapping_dhc = {
@@ -99,9 +86,22 @@ column_mapping_dhc = {
 }
 ddhc_df = ddhc_df.rename(columns=column_mapping_dhc)
 
-print("ddhc_df.head()", ddhc_df.head())
+# Loading Community Resilience Estimates for Counties
+params_cre = {
+    "get": "NAME,PRED0_E,PRED0_PE,PRED12_E,PRED12_PE,PRED3_E,PRED3_PE",
+    "for": "county:*",
+    "key": api_key,
+}
+url = "https://api.census.gov/data/2022/cre?"
+response_cre = requests.get(url, params=params_cre)
+
+cre_dataframe = load_dataframe(response_cre)
 
 
-# print("ddhca_df", ddhca_df.head())
+# WRITING TO SQL DATABASE
+def creating_sql_database(data, database_name, table_name):
+    connection = sqlite3.connect(database_name)
+    data.to_sql(table_name, connection, if_exists="replace", index=False)
 
-# Cleaning Dataset
+    connection.commit()
+    connection.close()
