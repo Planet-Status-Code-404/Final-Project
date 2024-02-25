@@ -8,3 +8,4 @@ Onur:
     2/24
     New Orleans, Houston, LA and Chicago data are collected via EPA API and converted into SQL
     Databases. Find in data_collection/data_files
+    Columns: https://ejscreen.epa.gov/mapper/ejsoefielddesc1.html
