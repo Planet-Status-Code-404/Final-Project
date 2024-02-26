@@ -66,7 +66,8 @@ def clean_fema_data(relative_csv_path,county,state):
     "WFIR_EXP_AREA":"Wildfire_exposure_area","WFIR_RISKS":"Wildfire_risks",
     "WNTW_EVNTS":"Winter_events","WNTW_AFREQ":"Winter_area_freq","WNTW_EXP_AREA":"Winter_exposure_area",
     "WNTW_RISKS":"Winter_risks"}
-    fema_dict = {}
+    # fema_dict = {}
+    fema_list = []
     fema_df = pd.read_csv(relative_csv_path)
     fema_df = fema_df.drop(columns=["OID_","NRI_ID","STATEFIPS","COUNTYTYPE","STCOFIPS"
     ,"AREA","RISK_SPCTL","EAL_SCORE","EAL_RATNG","EAL_SPCTL","EAL_VALT","EAL_VALB"
@@ -143,14 +144,15 @@ def clean_fema_data(relative_csv_path,county,state):
     #     print(col)
     for index,row in fema_df.iterrows():
         if state.lower() == row["STATE"].lower() and county.lower()==row["COUNTY"].lower():
+            fema_dict = {}
             for key,value in rename_fema_dict.items():
                 # print(value)
-                fema_dict = {rename_fema_dict[key]: row[key]}
+                fema_dict[rename_fema_dict[key]]= row[key]
+            fema_list.append(fema_dict)
+    final_df = pd.DataFrame(fema_list)
                 
                 # dataframe = pd.DataFrame(fema_dict)
-                pprint(fema_dict)
-
-
+    pprint(final_df)
      
     
 
