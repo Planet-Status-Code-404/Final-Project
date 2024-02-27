@@ -1,22 +1,23 @@
 import pandas as pd
 from sqlalchemy import create_engine
 
-def dataframe_to_sql(df, directory, db_name):
+def dataframe_to_sql(df, table_name, db_name):
     """
-    Converts a pandas DataFrame to a SQL database file.
-    
-    Parameters:
-    - df: The pandas DataFrame to be converted to SQL.
-    - directory: The target directory where the SQL database file will be created.
-    - db_name: The name of the database file to be created.
-    
-    Returns:
-    - A string message indicating the success of the operation.
-    """
-    # Create the SQLAlchemy engine
-    engine = create_engine(f'sqlite:///{directory}/{db_name}.db')
+    Stores a DataFrame in a SQL database.
 
-    # Write the data to the SQL database
-    df.to_sql(db_name, engine, index=False, if_exists='replace')
+    Parameters:
+    - df: DataFrame to store in the database.
+    - table_name: Name of the table to store the data.
+    - db_name: Name of the database.
+
+    Returns:
+    - A message indicating the success of the operation.
+    """
+    # Create the engine to connect to the SQLite database
+    engine = create_engine(f'sqlite:///data_collection/data_files/{db_name}.db')
+
+    # Use the to_sql() method to write records stored in a DataFrame to a SQL database
+    df.to_sql(table_name, engine, index=False, if_exists='replace')
     
-    return f"Database {db_name}.db created successfully in {directory}"
+    # Return a success message
+    return f"The data has been successfully stored in the '{table_name}' table of the '{db_name}.db' database."

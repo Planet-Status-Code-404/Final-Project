@@ -1,25 +1,66 @@
-from urllib.request import urlopen
-import json 
 import pandas as pd
-import pprint
+import requests
+from sqlalchemy import create_engine
+import seaborn as sns
 
-#API = email=onurcan@uchicago.edu&key=dunmallard98
+def collect_epa_data(city, max_rows, data_file):
+    """
+    Collects EPA data for a given city and stores it in a DataFrame.
 
-# store the URL in url as  
-# parameter for urlopen 
-# url = "https://api.github.com"
-# cook_county_control_sites = "https://aqs.epa.gov/data/api/list/sitesByCounty?email=onurcan@uchicago.edu&key=dunmallard98&state=17&county=031"
+    Parameters:
+    - city: City name as a string.
+    - max_rows: Maximum number of rows of data to collect.
+    - data_file: Path to the file containing FIPS codes.
 
-# # store the response of URL 
-# response = urlopen(cook_county_control_sites)  
-# cook_county = json.loads(response.read())
+    Returns:
+    - DataFrame with collected data.
+    """
 
-# cook_county = cook_county[cook_county['value_represented'] is not None]
+    #Only Chicago fips codes are in a cvs file and formatted differently.
+    if city.lower() == 'chicago':
+        fips_codes_df = pd.read_csv(data_file)
+        fips_codes_df['Processed'] = fips_codes_df.iloc[:, 0].apply(lambda x: str(int(x * 100)).ljust(6, '0'))
+        base_fips = "17031"
+        fips_codes = {base_fips + processed_id for processed_id in fips_codes_df['Processed']}
+    else:
+        fips_codes_df = pd.read_excel(data_file, header=None, engine='openpyxl')
+        fips_codes = set(fips_codes_df[0].astype(str).str.pad(width=11, side='left', fillchar='0'))
+    
+    # DataFrame to store all results
+    data = pd.DataFrame()
+    
+    # Initialize counters for tracking API calls
+    success_count = 0
+    fail_count = 0
+    
+    for i, fips_code in enumerate(fips_codes):
+        if i >= max_rows:
+            break  # Exit the loop after reaching max_calls
 
-# print(cook_county)
+        # Construct the API URL for data
+        url = f"https://ejscreen.epa.gov/mapper/ejscreenRESTbroker1.aspx?namestr={fips_code}&geometry=&distance=&unit=9035&areatype=tract&areaid={fips_code}&f=json"
+        response = requests.get(url)
+        
+        json_data = response.json()
+        if 'data' in json_data:
+            df = pd.json_normalize(json_data['data'])
+            data = pd.concat([data, df], ignore_index=True)
+            success_count += 1
+        else:
+            fail_count += 1
 
-epa_tri = "https://ejscreen.epa.gov/mapper/ejscreenRESTbroker1.aspx?namestr=Chicago&geometry=&distance=&unit=9035&areatype=city&areaid=1714000&f=json"
-tri_response= urlopen(epa_tri)
-tri_data = json.loads(tri_response.read())
+    print(f"Success: {success_count}, Failures: {fail_count}")
+    return data
 
-print(tri_data)
+def visualize_data(df):
+    """
+    Generates a pairplot from the given DataFrame.
+
+    Parameters:
+    - df: DataFrame to visualize.
+
+    Returns:
+    - None.
+    """
+    # Your visualization code goes here
+    pass
