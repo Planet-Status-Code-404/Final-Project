@@ -21,3 +21,23 @@ def dataframe_to_sql(df, table_name, db_name):
     
     # Return a success message
     return f"The data has been successfully stored in the '{table_name}' table of the '{db_name}.db' database."
+
+def merge_dfs_to_csv(list_of_dfs, name_of_csv):
+    """
+    Takes a list of DataFrames and Merges into one.
+    
+    Inspired by https://pandas.pydata.org/docs/user_guide/merging.html
+
+    Parameters: 
+    - list_of_dfs A list of Pandas DataFrames
+    - name_of_csv: string for the name of csv.
+
+    Returns:
+    - a dataframe that merges the parameters.
+    """
+
+    merged_df = pd.concat(list_of_dfs)
+
+    merged_df.to_csv(f"data_collection/data_files/{name_of_csv}")
+
+    return merged_df
