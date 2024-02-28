@@ -71,7 +71,7 @@ SYSTEM_MESSAGE_FUNCTION_CALLING = \
             "queries" : [
                 {
                     "function_name": "status"
-                    "parameters": ["function_name, "select_column", "reported_variable"]
+                    "parameters": ["function_name", "select_column", "reported_variable"]
                     "conditions": {
                         [
                             "variable_name": {variable_name},
@@ -90,8 +90,8 @@ SYSTEM_MESSAGE_FUNCTION_CALLING = \
 
             "queries" : [
                 {
-                    "function_name": "status"
-                    "parameters": ["select_column", "color, "location"]
+                    "function_name": "map"
+                    "parameters": ["select_column", "color", "location"]
                     "conditions": {
                         [
                             "variable_name": {variable_name},
@@ -105,6 +105,7 @@ SYSTEM_MESSAGE_FUNCTION_CALLING = \
         "climate vulnerability index": an index measuring the relative vulnerability of different communities to the effects of Climate Change
         "percent_black": the percent of the population whose race is Black
         "percent white": the percent of the population whose race is white
+        "total_population": the total population in an area
 
     "conditions" are ways that the user may want to restrict the data. A condition requires a {variable_name} in the dataset and a way to filter it.
     The possible {variable_name} values and their descriptions are below:
@@ -168,6 +169,48 @@ SYSTEM_MESSAGE_FUNCTION_CALLING = \
 
     [INST] Here is another example:
 
+    What is the average climate vulnerability for zip codes in Los Angeles with a population above 20000
+
+    Should be converted to [/INST]
+
+    "queries" : [
+        {
+            "function_name": "mean"
+            "parameters": ["climate vulnerability index"]
+            "conditions": {
+                [
+                    "variable_name": "total_population",
+                    "restriction": ["> 20000"]
+                ],
+                [
+                    "variable_name": "location",
+                    "restriction": [""]
+                ]
+            }
+        }
+    ]
+
+    [INST] Here is another example:
+
+    Which state has the highest average climate vulnerability?
+
+    Should be converted to [/INST]
+
+    "queries" : [
+        {
+            "function_name": "status"
+            "parameters": ["max", "climate vulnerability index", "location"]
+            "conditions": {
+                [
+                    "variable_name": "",
+                    "restriction": [""]
+                ]
+            }
+        }
+    ]
+
+    [INST] Here is another example:
+
     What is the average climate vulnerability in Los Angeles, CA. Which location has the highest climate vulnerability?
 
     Should be converted to [/INST]
@@ -194,6 +237,71 @@ SYSTEM_MESSAGE_FUNCTION_CALLING = \
             }
         }
     ]
+
+    [INST] Here is another example:
+
+    Make me a map of climate vulnerability in Los Angeles
+
+    Should be converted to [/INST]
+
+    "queries" : [
+        {
+            "function_name": "map"
+            "parameters": ["climate vulnerability", "", "Los Angeles"]
+            "conditions": {
+                [
+                    "variable_name": "",
+                    "restriction": [""]
+                ]
+            }
+        }
+    ]
+
+    [INST] Here is another example:
+
+    Make me a red map of the black population in Utah
+
+    Should be converted to [/INST]
+
+    "queries" : [
+        {
+            "function_name": "map"
+            "parameters": ["black_percent", "red", "Utah"]
+            "conditions": {
+                [
+                    "variable_name": "",
+                    "restriction": [""]
+                ]
+            }
+        }
+    ]
+
+    [INST] Here is another example:
+
+    What is the climate vulnerability index in the zip code 60615?
+
+    Should be converted to [/INST]
+
+    "queries" : [
+        {
+            "function_name": "mean"
+            "parameters": ["climate vulnerability index"]
+            "conditions": {
+                [
+                    "variable_name": "location",
+                    "restriction": ["== 60615]
+                ]
+            }
+        }
+    ]
+
+    Again remember, you are a helpful code assistant meant to help with function calling. Your task is to generate a valid JSON 
+    object from the user's input. ONLY use the following values for "function_name". Only respond in JSON format. Do not elaborate after outputting JSON.
+
+    If for some reason, you do not have enough information, politely request the neccesary information. Do not make assumptions.
+
+    User question:
+        Make me a green map of climate vulnerability in Chicago
 
     </s>
 
