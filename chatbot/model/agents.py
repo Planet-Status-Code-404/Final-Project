@@ -1,14 +1,21 @@
-import ollama
+import ollama # Ollama is program that allows us to create and host LLMs
 import json
-from typing import List, Dict, Type
-from inflect import engine
-from matplotlib.colors import is_color_like
-
+import json_repair # Useful for coercing output from the LLM to proper JSON
+from typing import List, Dict
+from inflect import engine # Used to convert things like "1st" to "first" -- helpful for communicating with the LLM
+from matplotlib.colors import is_color_like # Used to determine if something is a color
+from pygris import tracts # Gets census (tigris) shapefiles
+import folium # Used to make leaflet interactive maps
+import pandas as pd
+import geopandas # Used to handle spatial data
+# The idea came from similar use in R, but the use of webbrowser was infromed by this post
+# https://stackoverflow.com/questions/53069033/python-how-to-open-map-created-with-folium-in-browser-when-running-application
+import webbrowser
 
 # Dictionary to define the available functions and whether they are simple or complex
 FUNCTIONS = {
     "simple": {"SUM", "COUNT", "MAX", "MIN", "MEAN", "MEDIAN"},
-    
+
     "complex": {
         "FIND_TOP_K", # The top k of some parameter
         "STATUS", # What is the state of some parameter with or without some condition
@@ -18,7 +25,8 @@ FUNCTIONS = {
 
 # Dictionary to define all the available variable names and which table they're in
 VAR_NAMES = {
-    "var_name": "SQL table name"
+    "var_name": "SQL table name",
+    "climate vulnerability index": "idk"
 }
 
 #Dictionary to define the potential errors that may be raised due to issues in JSON output
@@ -29,6 +37,8 @@ ERRORS = {
 }
 
 DEFAULT_MAP_COLOR = "Blue"
+
+NGROK_TUNNEL_KEY = ""
 
 
 class json_response:
@@ -43,10 +53,10 @@ class json_response:
         
         self.func_name = json_object["function_name"].upper()
         self.type = self._set_type()
-        
-        self.set_parameters(json_object)
-
         self.errors = []
+
+        self.set_parameters(json_object)
+        self.set_conditions(json_object)
 
     def is_available_function(self):
         """
@@ -64,6 +74,20 @@ class json_response:
         if self.func_name not in FUNCTIONS["simple"]:
             return "complex"
         return "simple" 
+    
+    def valid_color_for_map(self, color_str: str) -> None :
+        """
+        Need to check the "color" parameter to determine if it is a valid color to be mapped
+        """
+        if is_color_like(color_str):
+            return color_str
+        
+        dual_color = color_str.split("-")
+        for color in dual_color:
+            if not is_color_like(color):
+                return None
+            
+        return color_str
     
     def _parse_top_k_params(self, raw: str):
         if len(raw) == 3 and raw[0].isdigit():
@@ -102,11 +126,16 @@ class json_response:
         for p in raw[1:]:
             if self.valid_color_for_map(p):
                 param_dict["color"] = p
-            if self.is_location(p):
+
+            else:
+                # Replace with working location function
                 param_dict["location"] = p
+            # implement location method
+            # if self.is_location(p):
+            #     param_dict["location"] = p
 
         return param_dict        
-        
+    
     def set_parameters(self, json_object: str) -> None:
         """
         Sets parameters based on the function specified in the call
@@ -144,14 +173,38 @@ class json_response:
         # Map
         if self.func_name == "MAP":
             output = self._parse_map_params(raw_params)
-            if output != ("invalid function format", "STATUS"):
+            if output != ("invalid function format", "MAP"):
                 self.parameters = {
-                    "select_columns": output.get("select_columns"),
+                    "select_column": output.get("select_column"),
                     "color": output.get("color", DEFAULT_MAP_COLOR),
                     "location": output.get("location", None)
                 }
             self.errors.append(output)
 
+    def set_conditions(self, json_object: str) -> None:
+        """
+        Sets conditions based on the function specified in the call
+
+        """
+        conds_dict = {}
+
+        for i, cond in enumerate(json_object["conditions"]):
+            var_name = cond["variable_name"]
+            restriction = cond["restriction"][0]
+            bool_operators = cond["bool_operators"]
+
+            conds_dict[var_name] = conds_dict.get(var_name, [])
+
+            if i == 0:
+                conds_dict[var_name].append(f"{var_name} {restriction}")
+
+            if i > 1:
+                conds_dict[var_name].append(f"{bool_operators} {var_name} {restriction}")
+
+        self.conditions = {
+            var_name: " ".join(conditions)
+            for var_name, conditions in conds_dict.items()
+        }
 
     def is_location():
         """
@@ -166,26 +219,22 @@ class json_response:
         """
         pass
 
-    
-    def valid_color_for_map(self, color_str: str) -> None :
-        """
-        Need to check the "color" parameter to determine if it is a valid color to be mapped
-        """
-        if is_color_like(color_str):
-            return color_str
-        
-        dual_color = color_str.split("-")
-        for color in dual_color:
-            if not is_color_like(color):
-                return DEFAULT_MAP_COLOR
-        
-        return color_str
-
-    def __eq__(self, other: Type[json_response]) -> bool:
+    def __eq__(self, other: "json_response") -> bool:
         return (
             self.func_name == other.func_name and
             self.parameters == other.parameters and
             self.conditions == other.conditions
+        )
+    # Checked documentation for how to use classes as dictionary keys (__hash__)
+    # https://docs.python.org/3/reference/datamodel.html#object.__hash__
+    def __hash__(self) -> int:
+        return hash(" ".join(
+            [self.func_name] + 
+            list(self.parameters.keys()) + 
+            list(self.parameters.values()) +
+            list(self.conditions.keys()) +
+            list(self.conditions.values())
+            )
         )
 
 
@@ -194,101 +243,75 @@ class agent_functions:
 
     """
 
-    def __init__(self, json_object: str):
-        self.function_call = json_response(json_object)
-        self.func_name = self.function_call.func_name
-        self.parameters = self.function_call.parameters
-        self.conditions = self.function_call.conditions
+    def __init__(self):
+        self.tract_shp = self.get_shapefiles()
 
-        self.simple_functions = [
-            # The next 8 functions are the "simple" functions
-            "SUM",
-            "COUNT",
-            "MAX",
-            "MIN",
-            "MEAN",
-            "MEDIAN",
-            "VAR",
-            "STD"
-        ]
 
-        self.complex_functions = [
-            # The next 4 functions are the "complex" functions
-            "STATUS", # What is the state of some parameter with or without some condition
-            "TOP_K", # The top k of some parameter
-            "BOTTOM_K", # The bottom k of some parameter
-            "MAP" # Generate a map based on the parameters and conditions
-        ]
+    def _get_shapefiles(self):
+        states = ["CA", "IL", "TX", "WA", "FL"]
 
-        self.available_functions = self.simple_functions + self.complex_functions
-        self.available_parameters = self.get_available_parameters()
+        tracts_shp = tracts(year = 2020, state = states[0])
+        tracts_shp["state_name"] = states[0]
 
-        self.correction_needed = self.verify_inputs()
+        for state in states[1:]:
+            state_tracts = tracts(year = 2020, state = state)
+            state_tracts["state_name"] = state
 
-    def verify_inputs(self) -> None | str:
+            tracts_shp = pd.concat([tracts_shp, state_tracts], axis = 0)
+        return tracts_shp
+
+
+    # def verify_inputs(self) -> None | str:
+    #     """
+    #     Verify that the JSON inputs are valid and generate a correction message
+    #     if they are wrong.
+
+    #     """
+    #     errant_functions = self.function_call.verify_function(self.available_functions)
+    #     errant_parameters = self.function_call.verify_parameters(self.available_parameters)
+
+    #     correction_message = ""
+    #     if errant_functions:
+    #         correction_message += f"The function: {errant_functions} was included" 
+    #         "in the JSON output, but this is not an available function."
+
+    #     if errant_parameters:
+    #         if len(errant_functions) > 1:
+    #             correction_message += f"The parameters: {errant_functions}, were"
+    #             "included in the JSON output, but these are not available parameters."
+    #         else:
+    #             correction_message += f"The parameter: {errant_functions}, was"
+    #             "included in the JSON output, but this is not an available parameter."
+
+    #     if errant_functions or errant_parameters:
+    #         return correction_message
+    #     return None
+
+
+    def request_simple_functions_data(self, json_response_obj: json_response) -> str:
         """
-        Verify that the JSON inputs are valid and generate a correction message
-        if they are wrong.
-
+        Construct SQL query 
         """
-        errant_functions = self.function_call.verify_function(self.available_functions)
-        errant_parameters = self.function_call.verify_parameters(self.available_parameters)
+        func_name = json_response_obj.parameters["function_name"]
+        column = json_response_obj.parameters["column"]
 
-        correction_message = ""
-        if errant_functions:
-            correction_message += f"The function: {errant_functions} was included" 
-            "in the JSON output, but this is not an available function."
-
-        if errant_parameters:
-            if len(errant_functions) > 1:
-                correction_message += f"The parameters: {errant_functions}, were"
-                "included in the JSON output, but these are not available parameters."
-            else:
-                correction_message += f"The parameter: {errant_functions}, was"
-                "included in the JSON output, but this is not an available parameter."
-
-        if errant_functions or errant_parameters:
-            return correction_message
-        return None
-    
-    def get_available_parameters(self) -> List[str]:
-        """
-        Use the SQL schema to get the available column names as potential 
-        parameters.
-
-        For complex funcctions, will need to get more complex things
-        """
         pass
 
-    def request_simple_functions_data(self) -> str:
+    def request_status_data(self, json_response_obj: json_response) -> str:
         """
         Construct SQL query 
         """
 
         pass
 
-    def request_status_data(self) -> str:
+    def request_top_k(self, json_response_obj: json_response) -> str:
         """
         Construct SQL query 
         """
 
         pass
 
-    def request_top_k(self) -> str:
-        """
-        Construct SQL query 
-        """
-
-        pass
-
-    def request_bottom_k(self) -> str:
-        """
-        Construct SQL query 
-        """
-
-        pass
-
-    def request_map(self, color="choose default color") -> str:
+    def request_map(self, json_response_obj: json_response, color=DEFAULT_MAP_COLOR) -> str:
         """
          
         """
@@ -299,11 +322,13 @@ class agent_functions:
         # https://github.com/mthh/jenkspy
         pass
 
-    def get_data() -> str:
+    def get_data(self, json_response_obj: json_response) -> str:
         """
         
         """
-
+        if json_response_obj:
+            ""
+        
         pass
 
 
@@ -320,8 +345,7 @@ class function_calling_agent(ollama.Client):
 
         """
         self.context = None
-        super().__init__()
-        self.host = ""
+        super().__init__(host=NGROK_TUNNEL_KEY)
         
 
     def get_json(self, prompt: str) -> List[Dict]:
@@ -384,7 +408,7 @@ class function_calling_agent(ollama.Client):
         answers = []
 
         for i, json_func_object in enumerate(self.get_json(prompt)):
-            functions = self.retry_request(agent_functions(json_func_object))
+            functions = self.retry_request(agent_functions.get_data(json_func_object))
 
             if functions == "Could not complete request":
                 return "Could not complete request"
@@ -407,73 +431,73 @@ class function_calling_agent(ollama.Client):
 
 
 
-a = """
-"role": "system", 
-     "content":
+# a = """
+# "role": "system", 
+#      "content":
          
-        <s>[INST] 
+#         <s>[INST] 
 
-        You are a helpful code assistant mean to help with data analysis. Your task is to generate a valid JSON 
-        object from a user's input. Only respond in JSON format. Do not elaborate after outputting 
-        JSON. 
+#         You are a helpful code assistant mean to help with data analysis. Your task is to generate a valid JSON 
+#         object from a user's input. Only respond in JSON format. Do not elaborate after outputting 
+#         JSON. 
 
-        These are the available functions and their descriptions:
-            "mean": "take the average or mean"
-            "sum": "sums a variable across a dataset"
-            "count": "counts something across a dataset"
+#         These are the available functions and their descriptions:
+#             "mean": "take the average or mean"
+#             "sum": "sums a variable across a dataset"
+#             "count": "counts something across a dataset"
 
-        The following example:
+#         The following example:
 
-        What is the average Climate index in Chicago? 
+#         What is the average Climate index in Chicago? 
 
-        Should be converted to [/INST]
+#         Should be converted to [/INST]
 
-        "queries": [
-            {
-                "filter": "Chicago",
-                "function_name": "average",
-                "function_parameters": "Climate index"
-            }
-        ]
+#         "queries": [
+#             {
+#                 "filter": "Chicago",
+#                 "function_name": "average",
+#                 "function_parameters": "Climate index"
+#             }
+#         ]
 
-        [INST] Here is another example:
+#         [INST] Here is another example:
 
-        What is the total population in Salt Lake City, Utah?
+#         What is the total population in Salt Lake City, Utah?
 
-        Should be converted to [/INST]
+#         Should be converted to [/INST]
 
-        "queries": [
-            {
-                "filter": "Salt Lake City, Utah",
-                "function_name": "sum",
-                "function_parameters": "population"
-            }
-        ]
+#         "queries": [
+#             {
+#                 "filter": "Salt Lake City, Utah",
+#                 "function_name": "sum",
+#                 "function_parameters": "population"
+#             }
+#         ]
     
-        [INST] Here is another example:
+#         [INST] Here is another example:
 
-        "How many rivers are in Arizona? Also how many people live in Evanston, Illinois?"
+#         "How many rivers are in Arizona? Also how many people live in Evanston, Illinois?"
 
-        Should be converted to [/INST]
+#         Should be converted to [/INST]
 
-        "queries": [
-            {
-                "filter": "Arizona",
-                "function_name": "count",
-                "function_parameters": "rivers"
-            },
-            {
-                "filter": "Evanston, Illinois",
-                "function_name": "sum",
-                "function_parameters": "population"
-            }
-        ]
+#         "queries": [
+#             {
+#                 "filter": "Arizona",
+#                 "function_name": "count",
+#                 "function_parameters": "rivers"
+#             },
+#             {
+#                 "filter": "Evanston, Illinois",
+#                 "function_name": "sum",
+#                 "function_parameters": "population"
+#             }
+#         ]
 
-        [INST] "how many trees are in my zip code, 60617" [/INST]
+#         [INST] "how many trees are in my zip code, 60617" [/INST]
 
-        </s>
+#         </s>
 
-    """
+#     """
 
         
 
