@@ -1,6 +1,28 @@
 import json
 from pprint import pprint
 import pandas as pd 
+import geopandas as gpd
+from pygris import tracts
+import requests
+
+class Tract: #this code has been taken in part from agents.py and stack. do not use yet!!!!
+    def __init__(self):
+        self.tract_shp = self.get_shapefiles()
+
+    def get_shapefiles(self):
+        states = ["LA", "IL", "TX", "WA", "CA"]
+
+        tracts_shp = tracts(year=2020, state=states[0], verify=False)
+        tracts_shp["state_name"] = states[0]
+
+        for state in states[1:]:
+            state_tracts = tracts(year=2020, state=state, verify=False)
+            state_tracts["state_name"] = state
+
+            tracts_shp = pd.concat([tracts_shp, state_tracts], axis=0)
+
+        return tracts_shp
+
 def clean_richmond_data (city_name):
     """
     Purpose: 
@@ -9,7 +31,7 @@ def clean_richmond_data (city_name):
     """
     city_dict = {} #build this out so all the rows can be seen in the data frame!!!
     city_list = []
-    mapping_inequality=open('data_collection/mappinginequality.json')
+    mapping_inequality=open('/Users/kiranjivnani/Final-Project/data_collection/mappinginequality.json')
     richmond_data = json.load(mapping_inequality)
     for key, data in richmond_data.items():
         if key == "features":
@@ -31,10 +53,25 @@ def clean_richmond_data (city_name):
                             "geometry_type": data[index]["geometry"]["type"],
                             "coordinates": data[index]["geometry"]["coordinates"],} #Summer TA helped 
                         # city_dict = {"property": data[index]["properties"], "geometry": data[index]["geometry"]} #summer TA helped 
+                        
+                        # polygon = data[index]["geometry"]["type"]
+                        # tracts = gpd.read_file("/Users/kiranjivnani/Final-Project/data_collection/Boundaries - Census Tracts - 2010.geojson")
+                        # joined_data = gpd.sjoin(polygon, tracts, op='intersects')
+                        # for index, row in joined_data.iterrows():
+                        #     print(row['tract_id'])
+                        
+                        print(pygris.tract(state = "NY"))
+                        
+                        ny_tract = pygris.tract(state= "NY")
+                        print(ny_tract)
+                        
                         city_list.append(city_dict)
 
     dataframe=pd.DataFrame(city_list)
     pprint(dataframe)
+
+
+
 
 def clean_climate_vul_index (relative_csv_path,county,state):
     final_dict = {}
