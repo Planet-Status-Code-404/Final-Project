@@ -147,29 +147,79 @@ for state, df in cre_dataframes.items():
 # Concatenate all DataFrames in the list along the rows (axis=0)
 compiled_dataframe_cre = pd.concat(cre_compiled_dfs, ignore_index=True)
 
+
+# Adding the Census_Tract_ID
+def add_census_tract_ID(dataframe, state_column, county_column, tract_column):
+    # Convert columns to strings
+    dataframe[state_column] = dataframe[state_column].astype(str)
+    dataframe[county_column] = dataframe[county_column].astype(str)
+    dataframe[tract_column] = dataframe[tract_column].astype(str)
+
+    # Create new column 'Census_Tract_ID' containing concatenated values
+    dataframe["Census_Tract_ID"] = (
+        dataframe[state_column] + dataframe[county_column] + dataframe[tract_column]
+    )
+    return dataframe
+
+
+compiled_dataframe_dp = add_census_tract_ID(
+    compiled_dataframe_dp,
+    "state",
+    "county",
+    "tract",
+)
+compiled_dataframe_dhc = add_census_tract_ID(
+    compiled_dataframe_dhc,
+    "state",
+    "county",
+    "tract",
+)
+compiled_dataframe_cre = add_census_tract_ID(
+    compiled_dataframe_cre,
+    "state",
+    "county",
+    "tract",
+)
+
+
 # Merge the first two DataFrames
 merged_df = pd.merge(
     compiled_dataframe_dp,
     compiled_dataframe_dhc,
-    on=["NAME", "state", "county", "tract"],
+    on=["Census_Tract_ID", "NAME", "state", "county", "tract"],
     how="outer",
 )
 # Merge the third DataFrame with the merged result
 final_merged_df = pd.merge(
     merged_df,
     compiled_dataframe_cre,
-    on=["NAME", "state", "county", "tract"],
+    on=["Census_Tract_ID", "NAME", "state", "county", "tract"],
     how="outer",
 )
+final_merged_df[["Census_Tract", "County_Name", "State_Name"]] = final_merged_df[
+    "NAME"
+].str.split("; ", expand=True)
+final_merged_df.drop(columns=["Census_Tract", "NAME"], inplace=True)
 
+# Remove leading and trailing whitespaces
+final_merged_df["State_Name"] = final_merged_df["State_Name"].str.strip()
+final_merged_df["County_Name"] = final_merged_df["County_Name"].str.strip()
 
-def compute_census_tract(dataframe, state, county, tract):
-    pass
-
-
-# print(final_merged_df.columns)
-# print(final_merged_df[["NAME", "state", "county", "tract"]].head())
-# final_merged_df.to_csv("census_data.csv", index=False)
+# Rearranging Columns
+desired_columns = [
+    "Census_Tract_ID",
+    "state",
+    "State_Name",
+    "county",
+    "County_Name",
+    "tract",
+]
+remaining_columns = [
+    col for col in final_merged_df.columns if col not in desired_columns
+]
+new_order = desired_columns + remaining_columns
+final_merged_df = final_merged_df[new_order]
+final_merged_df.to_csv("data_collection/data_files/census_data.csv", index=False)
 
 
 # WRITING TO SQL DATABASE
