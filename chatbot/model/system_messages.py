@@ -14,22 +14,24 @@ SYSTEM_MESSAGE_FUNCTION_CALLING = \
         {
             "function_name": {function}
             "parameters": [{parameters}]
-            "conditions": {
-                [
+            "conditions": [
+                {
                     "variable_name": {variable_name},
                     "restriction": [{restriction}]
-                ]
-            }
+                    "combine_conditions": "{combine_conditions}"
+                }
+            ]
         },
         {
             "function_name": {function}
             "parameters": [{parameters}]
-            "conditions": {
-                [
+            "conditions": [
+                {
                     "variable_name": {variable_name},
                     "restriction": [{restriction}]
-                ]
-            }
+                    "combine_conditions": "{combine_conditions}"
+                }
+            ]
         }
     ]
 
@@ -53,12 +55,13 @@ SYSTEM_MESSAGE_FUNCTION_CALLING = \
             {
                 "function_name": "find_top_k"
                 "parameters": ["k", "select_column", "reported_variable"]
-                "conditions": {
-                    [
+                "conditions": [
+                    {
                         "variable_name": {variable_name},
                         "restriction": [{restriction}]
-                    ]
-                }
+                        "combine_conditions": "{combine_conditions}"
+                    }
+                ]
             }
         ]
 
@@ -72,12 +75,13 @@ SYSTEM_MESSAGE_FUNCTION_CALLING = \
                 {
                     "function_name": "status"
                     "parameters": ["function_name", "select_column", "reported_variable"]
-                    "conditions": {
-                        [
+                    "conditions": [
+                        {
                             "variable_name": {variable_name},
                             "restriction": [{restriction}]
-                        ]
-                    }
+                            "combine_conditions": "{combine_conditions}"
+                        }
+                    ]
                 }
             ]
         
@@ -92,12 +96,13 @@ SYSTEM_MESSAGE_FUNCTION_CALLING = \
                 {
                     "function_name": "map"
                     "parameters": ["select_column", "color", "location"]
-                    "conditions": {
-                        [
+                    "conditions": [
+                        {
                             "variable_name": {variable_name},
                             "restriction": [{restriction}]
-                        ]
-                    }
+                            "combine_conditions": "{combine_conditions}"
+                        }
+                    ]
                 }
             ]
 

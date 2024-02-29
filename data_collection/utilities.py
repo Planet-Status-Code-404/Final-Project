@@ -1,5 +1,6 @@
 import pandas as pd
 from sqlalchemy import create_engine
+import pathlib
 
 def dataframe_to_sql(df, table_name, db_name):
     """
