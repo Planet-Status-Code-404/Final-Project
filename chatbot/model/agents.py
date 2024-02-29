@@ -14,10 +14,6 @@ from chatbot.model.json_responses import json_response, VAR_NAMES
 from chatbot.model.prompt_prefixes import function_agent_prefix
 
 
-DEFAULT_MAP_COLOR = "Blue"
-NGROK_TUNNEL_KEY = ""
-
-
 class agent_functions:
     """
 
@@ -28,7 +24,7 @@ class agent_functions:
         self.db = "SQL database"
 
     def _get_shapefiles(self):
-        states = ["CA", "IL", "TX", "WA", "FL"]
+        states = ["CA", "IL", "TX", "WA", "LA"]
 
         tracts_shp = tracts(year = 2020, state = states[0])
         tracts_shp["state_name"] = states[0]
@@ -46,6 +42,14 @@ class agent_functions:
         """
         func_name = json_response_obj.parameters["function_name"]
         column = json_response_obj.parameters["column"]
+        table = VAR_NAMES[column]
+        conditions_dict = json_response_obj.conditions
+        
+        {f"{VAR_NAMES[var_name]}" for var_name, cond in conditions_dict.items()}
+
+        query = f"SELECT {func_name}({table}.{column}) FROM {table} WHERE"
+
+
 
         pass
 
@@ -91,9 +95,9 @@ class function_calling_agent(ollama.Client):
     """
 
     def __init__(self, tunnel_key) -> None:
-        self.model_name = "PSC404"
+        self.model_name = "mistral"
         self.context = None
-        super().__init__(host=tunnel_key)
+        super().__init__(host = tunnel_key)
         
 
     def get_json(self, prompt: str) -> List[Dict]:

@@ -12,16 +12,18 @@ The following example:
         {
             "function_name": "mean"
             "parameters": ["LIFEEXP"]
-            "conditions": {
-                [
+            "conditions": [
+                {
                     "variable_name": "total_population",
-                    "restriction": ["> 20000"]
-                ],
-                [
+                    "restriction": ["> 20000"],
+                    "boolean_operator": ""
+                },
+                {
                     "variable_name": "location",
-                    "restriction": ["== Los Angeles"]
-                ]
-            }
+                    "restriction": ["== Los Angeles"],
+                    "boolean_operator": ""
+                }
+            ]
         }
     ]
 
@@ -35,12 +37,38 @@ The following example:
         {
             "function_name": "map"
             "parameters": ["RAW_E_PM25", "", "Los Angeles"]
-            "conditions": {
-                [
+            "conditions": [
+                {
                     "variable_name": "",
-                    "restriction": [""]
-                ]
-            }
+                    "restriction": [""],
+                    "boolean_operator": ""
+                }
+            ]
+        }
+    ]
+
+    [INST] Here is another example:
+
+    Make me a green-red map of the number of churches in Chicago where life expectancy is greater than 40 or particulate air is higher than 8
+
+    Should be converted to [/INST]
+
+    "queries" : [
+        {
+            "function_name": "map"
+            "parameters": ["NUM_CHURCH", "green-red", "Chicago"]
+            "conditions": [
+                {
+                    "variable_name": "LIFEEXP",
+                    "restriction": ["> 40"],
+                    "boolean_operator": ""
+                },
+                {
+                    "variable_name": "RAW_E_PM25",
+                    "restriction": ["> 8"],
+                    "boolean_operator": "OR"
+                }
+            ]
         }
     ]
 

@@ -36,6 +36,15 @@ class function_agent_prefix:
             "<= {some value}": the "variable_name" should be less or equal to the value set by the user
         """
 
+        self.conditions += \
+        """
+        "conditions" also require {boolean_operator}. A {boolean_operator} represents a way to combine {restriction}.
+        Possible boolean_operator and their definitions are below:
+            "OR": use the boolean operator "OR" to combine the "conditions"
+            "AND": use the boolean operator "AND" to combine the "conditions".
+
+        """
+
     def prompt(self):
         """Generate the prompt prefix"""
 

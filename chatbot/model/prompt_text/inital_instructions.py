@@ -18,7 +18,7 @@ The output for simple functions should be JSON format and follow this schema:
             {
                 "variable_name": {variable_name},
                 "restriction": [{restriction}]
-                "combine_conditions": "{combine_conditions}"
+                "boolean_operator": "{boolean_operator}"
             }
         ]
     },
@@ -29,7 +29,7 @@ The output for simple functions should be JSON format and follow this schema:
             {
                 "variable_name": {variable_name},
                 "restriction": [{restriction}]
-                "combine_conditions": "{combine_conditions}"
+                "boolean_operator": "{boolean_operator}"
             }
         ]
     }
@@ -59,7 +59,7 @@ The "complex functions" list is below along with their descriptions. Their outpu
                 {
                     "variable_name": {variable_name},
                     "restriction": [{restriction}]
-                    "combine_conditions": "{combine_conditions}"
+                    "boolean_operator": "{boolean_operator}"
                 }
             ]
         }
@@ -79,7 +79,7 @@ The "complex functions" list is below along with their descriptions. Their outpu
                     {
                         "variable_name": {variable_name},
                         "restriction": [{restriction}]
-                        "combine_conditions": "{combine_conditions}"
+                        "boolean_operator": "{boolean_operator}"
                     }
                 ]
             }
@@ -100,7 +100,7 @@ The "complex functions" list is below along with their descriptions. Their outpu
                     {
                         "variable_name": {variable_name},
                         "restriction": [{restriction}]
-                        "combine_conditions": "{combine_conditions}"
+                        "combine_conditions": "{boolean_operator}"
                     }
                 ]
             }
