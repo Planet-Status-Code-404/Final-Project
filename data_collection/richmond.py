@@ -5,25 +5,24 @@ import geopandas as gpd
 from pygris import tracts
 import requests
 
-class Tract: #this code has been taken in part from agents.py and stack. do not use yet!!!!
+class Tract: #this code has been taken in part from agents.py. do not use yet!!!!
     def __init__(self):
         self.tract_shp = self.get_shapefiles()
 
     def get_shapefiles(self):
-        states = ["LA", "IL", "TX", "WA", "CA"]
+        states = ["LA", "IL", "TX", "WA","CA"]
 
-        tracts_shp = tracts(year=2020, state=states[0], verify=False)
+        tracts_shp = tracts(year = 2020, state = states[0])
         tracts_shp["state_name"] = states[0]
 
         for state in states[1:]:
-            state_tracts = tracts(year=2020, state=state, verify=False)
+            state_tracts = tracts(year = 2020, state = state)
             state_tracts["state_name"] = state
 
-            tracts_shp = pd.concat([tracts_shp, state_tracts], axis=0)
-
+            tracts_shp = pd.concat([tracts_shp, state_tracts], axis = 0)
         return tracts_shp
 
-def clean_richmond_data (city_name):
+def clean_richmond_data (city_name, richmond_redlining: str):
     """
     Purpose: 
     Input: the name of the city whose data we want to explore
@@ -60,20 +59,22 @@ def clean_richmond_data (city_name):
                         # for index, row in joined_data.iterrows():
                         #     print(row['tract_id'])
                         
-                        print(pygris.tract(state = "NY"))
+                        # print(pygris.tract(state = "NY"))
                         
-                        ny_tract = pygris.tract(state= "NY")
-                        print(ny_tract)
+                        # ny_tract = pygris.tract(state= "NY")
+                        # print(ny_tract)
                         
                         city_list.append(city_dict)
 
-    dataframe=pd.DataFrame(city_list)
-    pprint(dataframe)
+    richmond_redlining_df=pd.DataFrame(city_list)
+    # pprint(dataframe)
 
+    richmond_redlining_df.to_csv(richmond_redlining, index=False,header=True) #code taken from geeksforgeeks
+    print(f"CSV file '{richmond_redlining}' has been created!")
 
+##############################################################################
 
-
-def clean_climate_vul_index (relative_csv_path,county,state):
+def clean_climate_vul_index (relative_csv_path,county,state,clean_climate_vul:str):
     final_dict = {}
     climate_vul_df = pd.read_csv(relative_csv_path) #https://datatofish.com/import-csv-file-python-using-pandas/
     climate_vul_df["County"] = climate_vul_df["County"].str.strip()
@@ -81,11 +82,15 @@ def clean_climate_vul_index (relative_csv_path,county,state):
     for index,row in climate_vul_df.iterrows():
         if state.lower() == row["State"].lower() and county.lower()==row["County"].lower():
             final_dict = {index: row}
-    dataframe = pd.DataFrame(final_dict)
-    pprint(dataframe)
+    climate_index_df = pd.DataFrame(final_dict)
+    # return climate_index_df
 
-def clean_fema_data(relative_csv_path,county,state):
-    rename_fema_dict = {"STATE": "State","COUNTY":"County","COUNTYFIPS": "Countyfips",
+    climate_index_df.to_csv(clean_climate_vul, index=False,header=True) #code taken from geeksforgeeks
+    print(f"CSV file '{clean_climate_vul}' has been created!")
+
+##############################################################################
+def clean_fema_data(relative_csv_path,county,state,fema_data):
+    rename_fema_dict = {"STATE": "State","COUNTY":"County","COUNTYFIPS": "Countyfips", #https://saturncloud.io/blog/how-to-rename-column-and-index-with-pandas/#:~:text=Renaming%20columns%20in%20Pandas%20is,are%20the%20new%20column%20names.
     "TRACT": "Tract","TRACTFIPS": "Tractfips","POPULATION": "Population",
     "RISK_VALUE": "Risk_value","SOVI_SCORE": "Social_vul_score","RESL_SCORE": "Resilience_score",
     "DRGT_EVNTS": "Drought_events","DRGT_AFREQ": "Drought_area_freq","DRGT_EXP_AREA": "Drought_experience_area",
@@ -186,13 +191,21 @@ def clean_fema_data(relative_csv_path,county,state):
                 # print(value)
                 fema_dict[rename_fema_dict[key]]= row[key]
             fema_list.append(fema_dict)
-    final_df = pd.DataFrame(fema_list)
+    final_fema_df = pd.DataFrame(fema_list)
                 
                 # dataframe = pd.DataFrame(fema_dict)
-    pprint(final_df)
-     
-    
+    # pprint(final_df)
+    final_fema_df.to_csv(fema_data, index=False,header=True) #code taken from geeksforgeeks
+    print(f"CSV file '{fema_data.csv}' has been created!")
 
+
+# def combine_dataframes(df_climate_vul_index,df_fema,relative_csv_path,county,state): #you need to add richmond in once you have the tract id key! 
+#     df_fema = clean_fema_data(relative_csv_path,county,state)
+#     df_climate_vul_index = clean_climate_vul_index(relative_csv_path,county,state)
+#     #add richmond here
+   
+#     merged_df = pd.merge(df_fema,df_climate_vul_index how='left', left_on=['tract_id'], right_on=['tract_id']) #replace tract id with the actyal key! dont forget!!!    
+#     return merged_df
      
     
 
