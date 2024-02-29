@@ -10,7 +10,7 @@ def get_variable_names():
     
     """ 
     data_tracker_file = pathlib.Path(__file__).parent\
-    / "../../data_collection/data_files/~Data tracker.xlsx"
+    / "../../data_collection/data_collection/~variable_names.xlsx"
 
     data_tracker = pd.read_excel(data_tracker_file, sheet_name=None)
 
