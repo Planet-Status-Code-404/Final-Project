@@ -10,7 +10,7 @@ def get_variable_names():
     
     """ 
     data_tracker_file = pathlib.Path(__file__).parent\
-    / "../../data_collection/data_collection/~variable_names.xlsx"
+    / "../../data_collection/~data_documentation/variable_names.xlsx"
 
     data_tracker = pd.read_excel(data_tracker_file, sheet_name=None)
 
@@ -18,7 +18,7 @@ def get_variable_names():
 
     for table_name in data_tracker:
         for row in data_tracker[table_name].itertuples():
-            var = getattr(row, "JSON_Variable")
+            var = getattr(row, "JSON_Variable").lower()
             description = getattr(row, "Description")
             var_names[var] = [table_name, description]
 

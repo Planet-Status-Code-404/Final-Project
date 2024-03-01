@@ -35,6 +35,24 @@ class agent_functions:
 
             tracts_shp = pd.concat([tracts_shp, state_tracts], axis = 0)
         return tracts_shp
+    
+    def construct_from_statement(self, json_response_obj: json_response) -> str:
+        """Construct FROM statement with neccessary JOINs for SQL"""
+        SQL_tables = json_response_obj.SQL_tables
+
+        tables_str = f"FROM {SQL_tables[0]} "
+        if len(SQL_tables) > 1:
+            for table in SQL_tables:
+                tables_str += f"JOIN {table} ON {SQL_tables[0]}.geo_id = {table}.geo_id "
+
+        return tables_str
+    
+    def construct_where_statement(self, json_response_obj: json_response) -> str:
+        """Construct WHERE statement with for SQL"""
+        conditions_dict = json_response_obj.conditions
+        cond = "OR".join([cond for cond in conditions_dict.values()])
+
+        return cond
 
     def request_simple_functions_data(self, json_response_obj: json_response) -> str:
         """
@@ -42,32 +60,52 @@ class agent_functions:
         """
         func_name = json_response_obj.parameters["function_name"]
         column = json_response_obj.parameters["column"]
-        table = VAR_NAMES[column]
-        conditions_dict = json_response_obj.conditions
+
+        tables = self.construct_from_statement(json_response_obj)
+        conditions = self.construct_where_statement(json_response_obj)
+
+        # Change to actually call from SQL
+        # STATUS is the equivalent of saying no function
+        # The choice to still give it a function name is for simplicity and consistency with the LLM
+        if func_name == "STATUS":
+            query = f"SELECT {column} {tables} WHERE {conditions}"
+        else:
+            query = f"SELECT {func_name}({column}) {tables} WHERE {conditions}"
+
+        pass
+
+    # def request_status_data(self, json_response_obj: json_response) -> str:
+    #     """
+    #     Construct SQL query 
+    #     """
+    #     func_name = json_response_obj.parameters["function_name"]
+    #     select_column = json_response_obj.parameters["select_columns"]
+    #     reported_variable = json_response_obj.parameters["reported_variable"]
         
-        {f"{VAR_NAMES[var_name]}" for var_name, cond in conditions_dict.items()}
+    #     tables = self.construct_from_statement(json_response_obj)
+    #     conditions = self.construct_where_statement(json_response_obj)
 
-        query = f"SELECT {func_name}({table}.{column}) FROM {table} WHERE"
+    #     query = f"SELECT {func_name}({reported_variable}) {tables} WHERE {conditions}"
 
-
-
-        pass
-
-    def request_status_data(self, json_response_obj: json_response) -> str:
-        """
-        Construct SQL query 
-        """
-
-        pass
+    #     pass
 
     def request_top_k(self, json_response_obj: json_response) -> str:
         """
         Construct SQL query 
         """
+        k = json_response_obj.parameters["k"]
+        select_column = json_response_obj.parameters["select_columns"]
+        reported_variable = json_response_obj.parameters["reported_variable"]
+
+        tables = self.construct_from_statement(json_response_obj)
+        conditions = self.construct_where_statement(json_response_obj)
+
+        query = f"SELECT {reported_variable} {tables} WHERE {conditions} ORDER"\
+        f"BY {select_column} LIMIT {k}"
 
         pass
 
-    def request_map(self, json_response_obj: json_response, color=DEFAULT_MAP_COLOR) -> str:
+    def request_map(self, json_response_obj: json_response) -> str:
         """
          
         """

@@ -42,6 +42,7 @@ Below is a list of the "simple functions" to assign to "function_name" and their
     "min": finds the minimum value for a variable
     "mean": take the average or mean
     "median": find the 50th percentile or median value in a variable
+    "status": the state of a variable
     
 The "complex functions" list is below along with their descriptions. Their output should follow their respective JSON output schemas.
 
@@ -64,26 +65,6 @@ The "complex functions" list is below along with their descriptions. Their outpu
             ]
         }
     ]
-
-    "status": the state of a variable with a given condition. 
-        PARAMETERS:
-            "function_name": The "function_name" argument specifies what function to use on the variable specified in the "select_column" argument.
-            "select_column": The "select_column" argument specifies what variable the user wants to apply a function on.
-            "reported_variable": The "reported_variable" is the variable that contains the information the user wants to observe from the data.
-
-        "queries" : [
-            {
-                "function_name": "status"
-                "parameters": ["function_name", "select_column", "reported_variable"]
-                "conditions": [
-                    {
-                        "variable_name": {variable_name},
-                        "restriction": [{restriction}]
-                        "boolean_operator": "{boolean_operator}"
-                    }
-                ]
-            }
-        ]
     
 
     "map": generate a map of some variable at some location

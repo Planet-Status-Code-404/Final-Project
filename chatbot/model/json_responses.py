@@ -4,11 +4,11 @@ import re
 
 # Dictionary to define the available functions and whether they are simple or complex
 FUNCTIONS = {
-    "simple": {"SUM", "COUNT", "MAX", "MIN", "MEAN", "MEDIAN"},
+    "simple": {"SUM", "COUNT", "MAX", "MIN", "MEAN", "MEDIAN", 
+               "STATUS",}, # What is the state of some parameter with or without some condition
 
     "complex": {
         "FIND_TOP_K", # The top k of some parameter
-        "STATUS", # What is the state of some parameter with or without some condition
         "MAP" # Generate a map based on the parameters and conditions
     }
 }
@@ -44,6 +44,8 @@ class json_response:
 
         self.set_parameters(json_object)
         self.set_conditions(json_object)
+
+        self.set_SQL_tables_list()
 
     def is_available_function(self):
         """
@@ -96,26 +98,26 @@ class json_response:
         else:
             return ("invalid function format", "FIND_TOP_K")
         
-    def _parse_status_params(self, raw: str):
+    # def _parse_status_params(self, raw: str):
 
-        if len(raw) == 3 and raw[0] in FUNCTIONS["simple"]:
-            function_name, select_column, reported_variable = raw
+    #     if len(raw) == 3 and raw[0] in FUNCTIONS["simple"]:
+    #         function_name, select_column, reported_variable = raw
 
-            select_column = f"{VAR_NAMES[select_column]}.{select_column}"
-            reported_variable = f"{VAR_NAMES[reported_variable]}.{reported_variable}"
+    #         select_column = f"{VAR_NAMES[select_column]}.{select_column}"
+    #         reported_variable = f"{VAR_NAMES[reported_variable]}.{reported_variable}"
 
-            return function_name, select_column, reported_variable
+    #         return function_name, select_column, reported_variable
         
-        elif len(raw) == 2 and raw[0] in FUNCTIONS["simple"]:
-            function_name, select_column = raw
+    #     elif len(raw) == 2 and raw[0] in FUNCTIONS["simple"]:
+    #         function_name, select_column = raw
 
-            select_column = f"{VAR_NAMES[select_column]}.{select_column}"
-            reported_variable = select_column
+    #         select_column = f"{VAR_NAMES[select_column]}.{select_column}"
+    #         reported_variable = select_column
 
-            return function_name, select_column, reported_variable
+    #         return function_name, select_column, reported_variable
         
-        else:
-            return ("invalid function format", "STATUS")
+    #     else:
+    #         return ("invalid function format", "STATUS")
         
     def _parse_map_params(self, raw: str):
         if raw[0] not in VAR_NAMES:
@@ -157,19 +159,21 @@ class json_response:
                     "select_columns": select_column,
                     "reported_variable": reported_variable
                 }
-            self.errors.append(output)
+            else:
+                self.errors.append(output)
 
-        # Status
-        if self.func_name == "STATUS":
-            output = self._parse_status_params(raw_params)
-            if output != ("invalid function format", "STATUS"):
-                function_name, select_column, reported_variable = output
-                self.parameters = {
-                    "function_name": function_name,
-                    "select_columns": select_column,
-                    "reported_variable": reported_variable
-                }
-            self.errors.append(output)
+        # # Status
+        # if self.func_name == "STATUS":
+        #     output = self._parse_status_params(raw_params)
+        #     if output != ("invalid function format", "STATUS"):
+        #         function_name, select_column, reported_variable = output
+        #         self.parameters = {
+        #             "function_name": function_name,
+        #             "select_columns": select_column,
+        #             "reported_variable": reported_variable
+        #         }
+        #     else:
+        #         self.errors.append(output)
 
         # Map
         if self.func_name == "MAP":
@@ -180,7 +184,8 @@ class json_response:
                     "color": output.get("color", DEFAULT_MAP_COLOR),
                     "location": output.get("location", None)
                 }
-            self.errors.append(output)
+            else:
+                self.errors.append(output)
 
     def set_conditions(self, json_object: str) -> None:
         """
@@ -190,9 +195,9 @@ class json_response:
         conds_dict = {}
 
         for i, cond in enumerate(json_object["conditions"]):
-            var_name = cond["variable_name"]
-            restriction = cond["restriction"][0]
-            bool_operators = cond["bool_operators"]
+            var_name = cond["variable_name"].lower()
+            restriction = cond["restriction"][0].lower()
+            bool_operators = cond["bool_operators"].upper()
 
             conds_dict[var_name] = conds_dict.get(var_name, [])
 
