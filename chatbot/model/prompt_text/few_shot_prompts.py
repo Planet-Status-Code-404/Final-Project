@@ -10,8 +10,9 @@ The following example:
 
     "queries" : [
         {
-            "function_name": "mean"
-            "parameters": ["LIFEEXP"]
+            "prompt": 'What is the average life expectancy in Los Angeles with a population above 20000',
+            "function_name": "mean",
+            "parameters": ["LIFEEXP"],
             "conditions": [
                 {
                     "variable_name": "total_population",
@@ -35,8 +36,9 @@ The following example:
 
     "queries" : [
         {
-            "function_name": "map"
-            "parameters": ["RAW_E_PM25", "", "Los Angeles"]
+            "prompt": 'Make me a map of particulate matter in Los Angeles',
+            "function_name": "map",
+            "parameters": ["RAW_E_PM25", "", "Los Angeles"],
             "conditions": [
                 {
                     "variable_name": "",
@@ -55,8 +57,9 @@ The following example:
 
     "queries" : [
         {
-            "function_name": "map"
-            "parameters": ["NUM_CHURCH", "green-red", "Chicago"]
+            "prompt": 'Make me a green-red map of the number of churches in Chicago where life expectancy is greater than 40 or particulate air is higher than 8',
+            "function_name": "map",
+            "parameters": ["NUM_CHURCH", "green-red", "Chicago"],
             "conditions": [
                 {
                     "variable_name": "LIFEEXP",
@@ -67,6 +70,27 @@ The following example:
                     "variable_name": "RAW_E_PM25",
                     "restriction": ["> 8"],
                     "boolean_operator": "OR"
+                }
+            ]
+        }
+    ]
+
+    [INST] Here is another example:
+
+    What is the percent of english speaking populations in Chicago
+
+    Should be converted to [/INST]
+
+    "queries" : [
+        {
+            "prompt": 'What is the percent of english speaking populations in Chicago',
+            "function_name": "status",
+            "parameters": ["P_ENGLISH"],
+            "conditions": [
+                {
+                    "variable_name": "location",
+                    "restriction": ["== Chicago"],
+                    "boolean_operator": ""
                 }
             ]
         }

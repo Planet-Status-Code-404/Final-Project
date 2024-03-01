@@ -38,7 +38,9 @@ class json_response:
 
     def __init__(self, json_object: str):
         
+        self.prompt_text = json_object["prompt_text"].upper()
         self.func_name = json_object["function_name"].upper()
+        
         self.type = self._set_type()
         self.errors = []
 
@@ -98,27 +100,6 @@ class json_response:
         else:
             return ("invalid function format", "FIND_TOP_K")
         
-    # def _parse_status_params(self, raw: str):
-
-    #     if len(raw) == 3 and raw[0] in FUNCTIONS["simple"]:
-    #         function_name, select_column, reported_variable = raw
-
-    #         select_column = f"{VAR_NAMES[select_column]}.{select_column}"
-    #         reported_variable = f"{VAR_NAMES[reported_variable]}.{reported_variable}"
-
-    #         return function_name, select_column, reported_variable
-        
-    #     elif len(raw) == 2 and raw[0] in FUNCTIONS["simple"]:
-    #         function_name, select_column = raw
-
-    #         select_column = f"{VAR_NAMES[select_column]}.{select_column}"
-    #         reported_variable = select_column
-
-    #         return function_name, select_column, reported_variable
-        
-    #     else:
-    #         return ("invalid function format", "STATUS")
-        
     def _parse_map_params(self, raw: str):
         if raw[0] not in VAR_NAMES:
             # Variable to be mapped has not been specified
@@ -161,19 +142,6 @@ class json_response:
                 }
             else:
                 self.errors.append(output)
-
-        # # Status
-        # if self.func_name == "STATUS":
-        #     output = self._parse_status_params(raw_params)
-        #     if output != ("invalid function format", "STATUS"):
-        #         function_name, select_column, reported_variable = output
-        #         self.parameters = {
-        #             "function_name": function_name,
-        #             "select_columns": select_column,
-        #             "reported_variable": reported_variable
-        #         }
-        #     else:
-        #         self.errors.append(output)
 
         # Map
         if self.func_name == "MAP":

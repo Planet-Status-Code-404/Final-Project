@@ -11,9 +11,10 @@ You can call two types of functions, "simple functions" and "complex functions".
 
 The output for simple functions should be JSON format and follow this schema:
 "queries" : [
-    {
-        "function_name": {function}
-        "parameters": [{parameters}]
+    {   
+        "prompt": 'prompt_text',
+        "function_name": {function},
+        "parameters": [{parameters}],
         "conditions": [
             {
                 "variable_name": {variable_name},
@@ -23,8 +24,9 @@ The output for simple functions should be JSON format and follow this schema:
         ]
     },
     {
-        "function_name": {function}
-        "parameters": [{parameters}]
+        "prompt": 'prompt_text',
+        "function_name": {function},
+        "parameters": [{parameters}],
         "conditions": [
             {
                 "variable_name": {variable_name},
@@ -42,7 +44,7 @@ Below is a list of the "simple functions" to assign to "function_name" and their
     "min": finds the minimum value for a variable
     "mean": take the average or mean
     "median": find the 50th percentile or median value in a variable
-    "status": the state of a variable
+    "status": the state of a variable. Don't apply any conduct any operations on it
     
 The "complex functions" list is below along with their descriptions. Their output should follow their respective JSON output schemas.
 
@@ -54,8 +56,9 @@ The "complex functions" list is below along with their descriptions. Their outpu
 
     "queries" : [
         {
-            "function_name": "find_top_k"
-            "parameters": ["k", "select_column", "reported_variable"]
+            "prompt": 'prompt_text',
+            "function_name": "find_top_k",
+            "parameters": ["k", "select_column", "reported_variable"],
             "conditions": [
                 {
                     "variable_name": {variable_name},
@@ -65,7 +68,7 @@ The "complex functions" list is below along with their descriptions. Their outpu
             ]
         }
     ]
-    
+
 
     "map": generate a map of some variable at some location
         PARAMETERS:
@@ -74,9 +77,10 @@ The "complex functions" list is below along with their descriptions. Their outpu
             "location": The "location" argument specifies where the map should be focused on. This is an optional parameter.
 
         "queries" : [
-            {
-                "function_name": "map"
-                "parameters": ["select_column", "color", "location"]
+            {   
+                "prompt": 'prompt_text',
+                "function_name": "map",
+                "parameters": ["select_column", "color", "location"],
                 "conditions": [
                     {
                         "variable_name": {variable_name},

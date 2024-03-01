@@ -8,7 +8,9 @@ class function_agent_prefix:
         self.var_names = self.get_var_names_and_descriptions()
         self.inital_instructions = FUNCTION_AGENT_INITIAL_INSTRUCTIONS
         self.few_shot_prompts = FUNCTION_AGENT_FEW_SHOT_PROMPTS
+
         self.define_conditions()
+        self.prompt_prefix = self.prompt()
 
     def get_var_names_and_descriptions(self):
         """ Get variable names and descriptions from database """
