@@ -5,7 +5,7 @@ import geopandas as gpd
 from pygris import tracts
 import requests
 
-class Tract: #this code has been taken in part from agents.py. do not use yet!!!!
+class Tract: #this code has been taken from agents.py
     def __init__(self):
         self.tract_shp = self.get_shapefiles()
 
@@ -30,7 +30,7 @@ def clean_richmond_data (city_name, richmond_redlining: str):
     """
     city_dict = {} #build this out so all the rows can be seen in the data frame!!!
     city_list = []
-    mapping_inequality=open('/Users/kiranjivnani/Final-Project/data_collection/mappinginequality.json')
+    mapping_inequality=open(r'data_collection/mappinginequality.json')
     richmond_data = json.load(mapping_inequality)
     for key, data in richmond_data.items():
         if key == "features":
@@ -69,26 +69,117 @@ def clean_richmond_data (city_name, richmond_redlining: str):
     richmond_redlining_df=pd.DataFrame(city_list)
     # pprint(dataframe)
 
-    richmond_redlining_df.to_csv(richmond_redlining, index=False,header=True) #code taken from geeksforgeeks
-    print(f"CSV file '{richmond_redlining}' has been created!")
+    # richmond_redlining_df.to_csv(richmond_redlining, index=False,header=True) #code taken from geeksforgeeks
+    # print(f"CSV file '{richmond_redlining}' has been created!")
 
 ##############################################################################
 
-def clean_climate_vul_index (relative_csv_path,county,state,clean_climate_vul:str):
-    final_dict = {}
-    climate_vul_df = pd.read_csv(relative_csv_path) #https://datatofish.com/import-csv-file-python-using-pandas/
-    climate_vul_df["County"] = climate_vul_df["County"].str.strip()
-    climate_vul_df["State"] = climate_vul_df["State"].str.strip()
-    for index,row in climate_vul_df.iterrows():
-        if state.lower() == row["State"].lower() and county.lower()==row["County"].lower():
-            final_dict = {index: row}
-    climate_index_df = pd.DataFrame(final_dict)
+def clean_climate_vul_index_master (state_list):
+    # final_dict = {}
+    # final_list = []
+    # climate_vul_df = pd.read_csv(relative_csv_path) #https://datatofish.com/import-csv-file-python-using-pandas/
+    # # climate_vul_df["County"] = climate_vul_df["County"].str.strip()
+    # climate_vul_df["State"] = climate_vul_df["State"].str.strip()
+    # for index,row in climate_vul_df.iterrows():
+    #     if state.lower()== row['State'].lower():
+    #     # if state.lower() == row["State"].lower() and county.lower()==row["County"].lower():
+    #         final_dict = {index: row}
+    #         final_list.append(final_dict)
+    #         climate_index_df = pd.DataFrame(final_list)
     # return climate_index_df
+    final_list = []
+    
+    climate_vul_df = pd.read_csv(r"data_collection/Master CVI Dataset - overview.csv")
+    climate_index_df.drop(columns=['All,Baseline','Infrastructure,Baseline',
+    'Baseline: Environment'])
+    climate_vul_df["State"] = climate_vul_df["State"].str.strip()
+    for state in state_list:
+        state_data = climate_vul_df[climate_vul_df['State'].str.lower() == state.lower()]
+        final_list.append(state_data)
 
-    climate_index_df.to_csv(clean_climate_vul, index=False,header=True) #code taken from geeksforgeeks
-    print(f"CSV file '{clean_climate_vul}' has been created!")
+    if final_list:
+        climate_index_df = pd.concat(final_list, ignore_index=True)
+        # pd.set_option('display.max_columns', None)
+        # print(climate_index_df)
+        return climate_index_df
+
+    # climate_index_df.to_csv(clean_climate_vul, index=False,header=True) #code taken from geeksforgeeks
+    # print(f"CSV file '{clean_climate_vul}' has been created!")
+
+
+def clean_climate_vul_indicators(state_list):
+    # final_dict = {}
+    # final_list = []
+    # climate_vul_df = pd.read_csv(relative_csv_path) #https://datatofish.com/import-csv-file-python-using-pandas/
+    # # climate_vul_df["County"] = climate_vul_df["County"].str.strip()
+    # climate_vul_df["State"] = climate_vul_df["State"].str.strip()
+    # for index,row in climate_vul_df.iterrows():
+    #     if state.lower()== row['State'].lower():
+    #     # if state.lower() == row["State"].lower() and county.lower()==row["County"].lower():
+    #         final_dict = {index: row}
+    #         final_list.append(final_dict)
+    #         climate_index_df = pd.DataFrame(final_list)
+    # return climate_index_df
+    final_list = []
+    climate_vul_df = pd.read_csv(r"data_collection/Master CVI Dataset - indicators.csv")
+    climate_vul_df.drop(columns =['Geographic Coordinates','Self-Reported Physical Health',
+    'Self-Reported Mental Health',"Drug Overdose Deaths per 100,000 People",'Alcohol Abuse',
+    'Suicide Rates','Current Diabetes','Current Adult Asthma','Stroke','COPD','CHD',
+   'Cancer','High Blood Pressure','Cholesterol Screening','Routine Doctor Visit',
+   'Colonoscopy','Mammogram','Older Men Preventive Screening','Older Women Preventive Screening',
+   'Dental Exams','COVID-19 Deaths','Hepatitis A','Hepatitis B','HIV','Chlamydia','Gonorrhea'
+   ,'Syphillis','Childhood Asthma','ADHD Prevalence','ADHD Treatment','Veterans Population',
+   ,'Lane miles per capita','Road Quality and Maintenance','Performance,Bridge Quality and Maintenance',
+   'Walkability','Bikability','Residential Energy Cost Burden','Share of energy from fossil fuels',
+   'EV Charging Stations','Modified Retail Food Environment Index','Payday lending rank',
+   ,'Tax Base: Median Real Estate Taxes Paid','Voter Turnout 2020','Public Library Locations'
+    'Total vehicle miles traveled per capita','Passenger vehicle miles traveled per capita',
+    'Truck vehicle miles traveled per capita','Heavy Duty Vehicle vehicle miles traveled per capita',
+    'Proximity to Ports','Rail Crossings','Traffic Proximity and Volume','National Transportation Noise Map',
+    'Risk-Screening Environmental Indicators (RSEI)','Air Tox Respiratory','Air Tox Neurological','Air Tox Liver','Air Tox Developmental',
+    'Air Tox Reproductive','Air Tox Kidney','Air Tox Immunological','Air Tox Thyroid',
+    'Air Tox Total Cancer Risk','Black Carbon','Agricultural pesticides','Lead Paint: % housing units built before 1960',
+    ,'Superfund Sites','Brownfields','Stream Toxicity Risk-Screening Environmental Indicators (RSEI)',
+    'Proximity to facilities participating in air markets','NPL sites','Hazardous Waste Management Facilities (TSDFs)',
+    'Hazardous Waste Generator/Incinerators','Facilities with Enforcement or Violation',
+    'Landfills','TSCA Facilities','Risk Management Plan Facilities','Chemical Manufacturers',
+    'Metal Recyclers,Active Oil and Gas Wells','Annual average PM2.5 concentrations','NO2 concentration',
+    'Ozone concentration,Parks and Greenspace','Impermeable Surfaces','Forest Land Cover',
+    ,'Increase in childhood asthma incidence','Aedes aldopictus dengue transmission increase',
+    'Aedes aegypti dengue transmission increase','Aedes aegypti zika transmission increase',
+    'Property taxes expected to be lost by 2045 due to chronic inundation','High-Risk Jobs Productivity (% Change)',
+    'Yields (% change)','Outdoor workers - work days at risk per year','Expected Annual Loss - Agriculture Value',
+    'Expected Annual Loss - Building Value','Expected Annual Loss - Population Equivalence',
+    'Residential Energy Expenditures (% change)','Share of Jobs in Agriculture','Methane Emissions',
+    'Property Crimes (% change)','Violent Crimes (% change)','Cold Wave - Annualized Frequency,Days with maximum temperature above 35 C',
+    'Days with maximum temperature above 40C','Frost Days','Maximum of maximum temperatures','Mean temperature'
+    ,'Drought - Annualized Frequency','Consecutive Dry Days','Wildfire - Annualized Frequency','Surface PM2.5',
+    'Snowfall','Standardized Precip Index','Total Precipitation','Coastal Flooding - Annualized Frequency',
+    'Riverine Flooding - Annualized Frequency','Sea Level Rise','Hurricane - Annualized Frequency',
+    'Tornado - Annualized Frequency','Winter Weather - Annualized Frequency'])
+    climate_vul_df["State"] = climate_vul_df["State"].str.strip()
+
+    for state in state_list:
+        state_data = climate_vul_df[climate_vul_df['State'].str.lower() == state.lower()]
+        final_list.append(state_data)
+
+    if final_list:
+        climate_index_df = pd.concat(final_list, ignore_index=True)
+        # pd.set_option('display.max_columns', None)
+        # print(climate_index_df)
+        return climate_index_df
+
+def combine_CVI_df(df_cvi_master,df_cvi_indicators,state_list,merged_cvi_data:str): 
+    df_cvi_master = clean_climate_vul_index_master(state_list)
+    df_cvi_indicators = clean_climate_vul_indicators(state_list)
+
+    merged_cvi_df = pd.merge(df_cvi_master,df_cvi_indicators how='left', left_on=['FIPS Code'], right_on=['FIPS Code']) 
+
+    merged_cvi_df.to_csv(merged_cvi_data, index=False,header=True) #code taken from PA 4! 
+    print(f"The CSV file '{merged_cvi_data.csv}' was created!") 
 
 ##############################################################################
+
 def clean_fema_data(relative_csv_path,county,state,fema_data):
     rename_fema_dict = {"STATE": "State","COUNTY":"County","COUNTYFIPS": "Countyfips", #https://saturncloud.io/blog/how-to-rename-column-and-index-with-pandas/#:~:text=Renaming%20columns%20in%20Pandas%20is,are%20the%20new%20column%20names.
     "TRACT": "Tract","TRACTFIPS": "Tractfips","POPULATION": "Population",
@@ -199,13 +290,6 @@ def clean_fema_data(relative_csv_path,county,state,fema_data):
     print(f"CSV file '{fema_data.csv}' has been created!")
 
 
-# def combine_dataframes(df_climate_vul_index,df_fema,relative_csv_path,county,state): #you need to add richmond in once you have the tract id key! 
-#     df_fema = clean_fema_data(relative_csv_path,county,state)
-#     df_climate_vul_index = clean_climate_vul_index(relative_csv_path,county,state)
-#     #add richmond here
-   
-#     merged_df = pd.merge(df_fema,df_climate_vul_index how='left', left_on=['tract_id'], right_on=['tract_id']) #replace tract id with the actyal key! dont forget!!!    
-#     return merged_df
      
     
 
