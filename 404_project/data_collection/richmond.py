@@ -25,7 +25,6 @@ class Tract: #this code has been taken from agents.py
         # tracts_shp.to_csv(state_tracts_file, index=False,header=True) #code taken from geeksforgeeks
         # print(f"CSV file '{state_tracts_file.csv}' has been created!")
     
-
 def clean_richmond_data (state_list):
     """
     Purpose: 
@@ -120,7 +119,7 @@ def clean_climate_vul_master (state_list):
     # return climate_index_df
     final_list = []
     
-    climate_vul_df = pd.read_csv(r"Master CVI Dataset - overview.csv")
+    climate_vul_df = pd.read_csv(r"404_project/data_collection/source_data/master_cvi_data_overview.csv")
     climate_vul_df.drop(columns=['Baseline: All','Baseline: Infrastructure',
     'Baseline: Environment'])
     climate_vul_df["State"] = climate_vul_df["State"].str.strip()
