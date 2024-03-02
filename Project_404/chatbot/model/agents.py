@@ -13,7 +13,7 @@ from jenkspy import jenks_breaks # Create Fisher-Jenks natural breaks for maps
 import colour # Create color scales
 
 from 404_project.model.json_responses import json_response, VAR_NAMES
-from chatbot.model.prompt_prefixes import function_agent_prefix
+from 404.project.chatbot.model.prompt_prefixes import function_agent_prefix
 
 
 class agent_functions:
