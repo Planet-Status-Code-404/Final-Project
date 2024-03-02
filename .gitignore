@@ -1,3 +1,5 @@
 *.pyc
 .ven
 merged_cvi_data
+fema_nri_censustracts.csv
+master_cvi_data_indicators.csv
