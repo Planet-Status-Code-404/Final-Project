@@ -8,11 +8,25 @@ csv_directory_path = pathlib.Path(__file__).parent / "output_data"
 
 
 def insert_tables_to_database(csv_directory_path, db_file_path):
+    """
+    Traverses through the csv_directory_path and converts csv files present in the
+    folder to add to the climate_database.
+
+    Parameters:
+    - csv_directory_path (str): The path to the directory containing CSV files.
+    - db_file_path (str): The path to the SQLite database file.
+
+    Raises:
+    - Exception: If the 'geo_id' column is not found in any of the CSV files.
+
+    Returns:
+    - None
+    """
     connection = sqlite3.connect(db_file_path)
     cursor = connection.cursor()
 
     for root, _, files in os.walk(csv_directory_path):
-        for file in files:
+        for file in files[:5]:
             if file.endswith(".csv"):
                 csv_file_path = os.path.join(root, file)
                 table_name = os.path.splitext(file)[0]
@@ -33,7 +47,7 @@ def insert_tables_to_database(csv_directory_path, db_file_path):
                     remaining_columns = [
                         (
                             f'"{column}"'
-                            if any(c in column for c in [" ", ",", "&"])
+                            if any(c in column for c in [" ", ",", "&", "."])
                             else column
                         )
                         for column in headers
@@ -50,7 +64,6 @@ def insert_tables_to_database(csv_directory_path, db_file_path):
                         cursor.execute(
                             f"INSERT INTO {table_name} VALUES ({placeholders})", row
                         )
-                    print("values added to data")
     connection.commit()
     connection.close()
 
