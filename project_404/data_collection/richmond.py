@@ -45,7 +45,7 @@ def matching_tracts(state_list): #this code is taken from gis stack exchange and
     '''
     Purpose: Create a new csv which has tract information for specified state
     list along with the data from the richmond redlining dataset. 
-    Inputs: List (list of states), csv string.
+    Inputs: List (list of states), csv string. The case (upper/lower) should not matter.
     Output: new csv 
     '''
     richmond_data_df = clean_richmond_data(state_list)
@@ -57,13 +57,11 @@ def matching_tracts(state_list): #this code is taken from gis stack exchange and
     combined_tracts_df.drop(columns=['tract_area'], inplace=True)
     return combined_tracts_df
     
-      
 def clean_redlined_with_tract_data(state_list,redlining_tract_csv:str): #combined_tract_redlining:str
     redlining_with_tracts_df = matching_tracts(state_list)
-    redlining_with_tracts_df.columns = redlining_with_tracts_df.columns.str.lower()
-    redlining_with_tracts_df.to_csv(redlining_tract_csv, index=False, header=True) #taken from my pa4
+    redlining_with_tracts_df.columns = redlining_with_tracts_df.columns.str.lower().str.replace("geoid","geo_id")
+    redlining_with_tracts_df.to_csv(f"{redlining_tract_csv}.csv", index=False, header=True) #taken from my pa4
     print(f"The new CSV file '{redlining_tract_csv} was created!") #do we need this in here or should we take it out?
-
         
 # This section of the file contains data collection, processing, manipulation, and cleaning functions
 # for the Climate Vulnerability datasets.
@@ -85,7 +83,7 @@ def clean_climate_vul_master (state_list:list):
     climate_vul_df.drop(columns=['Baseline: All','Baseline: Infrastructure',
     'Baseline: Environment'])
     climate_vul_df.columns = climate_vul_df.columns.str.lower().str.replace(" ","_").str.replace(":","")\
-    .str.replace("fips_code","geoid")
+    .str.replace("fips_code","geo_id")
     climate_vul_df["state"] = climate_vul_df["state"].str.strip()
     print(climate_vul_df.columns)
     for state in state_list:
@@ -111,7 +109,7 @@ def clean_climate_vul_indicators(state_list):
     '''
     final_list = []
     climate_vul_df = pd.read_csv(r"data_collection/source_data/master_cvi_data_indicators.csv")
-    filtered_dict = {"State":'state','County':'county','FIPS Code':'geoid',
+    filtered_dict = {"State":'state','County':'county','FIPS Code':'geo_id',
                      'Geographic Coordinates':'geographic_coordinates',
                      'Infant Mortality':'infant_mortality','Child Mortality':'child_mortality',
                      'Free or Reduced Price School Lunch':'free_reduced_school_lunch_price',
@@ -152,17 +150,16 @@ def combine_CVI_df(merged_cvi_data:str):
     state_list = ["LA", "IL", "TX", "WA","CA"]
     df_cvi_master = clean_climate_vul_master(state_list)
     df_cvi_indicators = clean_climate_vul_indicators(state_list)
-    merged_cvi_df = pd.merge(df_cvi_master,df_cvi_indicators, how='left', left_on=['geoid'], right_on=['geoid']) 
-    merged_cvi_df.to_csv(merged_cvi_data, index=False,header=True) #code taken from my PA 4! 
+    merged_cvi_df = pd.merge(df_cvi_master,df_cvi_indicators, how='left', left_on=['geo_id'], right_on=['geo_id']) 
+    merged_cvi_df.to_csv(f"{merged_cvi_data}.csv", index=False,header=True) #code taken from my PA 4! 
     print(f"The new CSV File '{merged_cvi_data}' was created!") 
-
 
 # This section of the file contains data collection, processing, manipulation, and cleaning functions
 # for the FEMA National Climate Index data
 
 def clean_fema_data(state_list,fema_data:str):
     rename_fema_dict = {"STATE": "state","COUNTY":"county","COUNTYFIPS": "countyfips", #https://saturncloud.io/blog/how-to-rename-column-and-index-with-pandas/#:~:text=Renaming%20columns%20in%20Pandas%20is,are%20the%20new%20column%20names.
-    "TRACT": "tract","TRACTFIPS": "geoid","POPULATION": "population",
+    "TRACT": "tract","TRACTFIPS": "geo_id","POPULATION": "population",
     "RISK_VALUE": "risk_value","SOVI_SCORE": "social_vul_score","RESL_SCORE": "resilience_score",
     "DRGT_EVNTS": "drought_events","DRGT_RISKS":"drought_risk",'DRGT_EALS': 'drought_expected_annual_loss_score',
     "ERQK_EVNTS": "earthquake_events","ERQK_RISKS":"earthquake_risk",'ERQK_EALS': "earthquake_expected_annual_loss_score",
@@ -262,7 +259,7 @@ def clean_fema_data(state_list,fema_data:str):
                     fema_dict[rename_fema_dict[key]]= row[key]
                 fema_list.append(fema_dict)
     final_fema_df = pd.DataFrame(fema_list)
-    final_fema_df.to_csv(fema_data, index=False,header=True) 
+    final_fema_df.to_csv(f"{fema_data}.csv", index=False,header=True) 
     print(f"CSV file '{fema_data}' has been created!")
     
                 
