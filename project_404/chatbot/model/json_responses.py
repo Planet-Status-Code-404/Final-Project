@@ -1,5 +1,5 @@
 from matplotlib.colors import is_color_like # Used to determine if something is a color
-from chatbot.model.utilities import get_variable_names
+from project_404.chatbot.utilities import get_variable_names
 import re
 
 # Dictionary to define the available functions and whether they are simple or complex
