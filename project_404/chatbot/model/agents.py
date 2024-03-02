@@ -130,6 +130,7 @@ class agent_functions:
 
     def request_map(self, json_response_obj: json_response) -> str:
         """
+        Use map from 
          
         """
         # Used https://www.latlong.net/ to find coordinates
@@ -166,6 +167,7 @@ class agent_functions:
         if "-" in color:
             color1, color2 = color.split("-")
             color_scale = list(colour.Color(color1).range_to(colour.Color(color2), 5))
+            color = f"{color1}_{color2}"
         else:
             # Using generic, neutral grey as default "beginning"
             color_scale = list(
@@ -193,7 +195,10 @@ class agent_functions:
             }        
         ).add_to(map)
 
-        pass
+        output_map_file = f'{select_column}_{color}.html'
+        map.save(output_map_file)
+
+        return output_map_file
 
     def get_data(self, json_response_obj: json_response) -> str:
         """
