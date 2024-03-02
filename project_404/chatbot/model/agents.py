@@ -11,9 +11,11 @@ import webbrowser
 import json_repair # Useful for coercing output from the LLM to proper JSON
 from jenkspy import jenks_breaks # Create Fisher-Jenks natural breaks for maps
 import colour # Create color scales
+import branca.colormap as cm
+import sqlite3
 
-from Project_404.model.json_responses import json_response, VAR_NAMES
-from Project_404.chatbot.model.prompt_prefixes import function_agent_prefix
+from project_404.chatbot.model.json_responses import json_response, VAR_NAMES
+from project_404.chatbot.model.prompt_prefixes import function_agent_prefix
 
 
 class agent_functions:
@@ -22,7 +24,7 @@ class agent_functions:
     """
 
     def __init__(self):
-        self.tract_shp = self.get_shapefiles()
+        self.tract_shp = self.get_shapefiles().set_index("GEOID")
         self.db = "SQL database"
 
 
@@ -143,18 +145,7 @@ class agent_functions:
         select_column = json_response_obj.parameters["select_columns"]
         color = json_response_obj.parameters["color"]
 
-        df = self.get_map_data(json_response_obj)
-
-        data_scale = jenks_breaks(df[select_column].to_numpy(), n_classes=5)
-
-        if "-" in color:
-            color1, color2 = color.split("-")
-            color_scale = list(colour.Color(color1).range_to(colour.Color(color2), 5))
-        else:
-            # Using generic, neutral grey as default "beginning"
-            color_scale = list(
-                colour.Color("#a7a7a8").range_to(colour.Color(color1), 5)
-            )
+        df = self.get_map_data(json_response_obj).set_index("geo_id")
         
         if location:
             map = folium.Map(
@@ -170,29 +161,38 @@ class agent_functions:
                 zoom_start=3
             )
 
-        geo_df = pd.DataFrame()
+        data_scale = jenks_breaks(df[select_column].to_numpy(), n_classes=5)
 
-        # Adapted from folium documentation: https://python-visualization.github.io/folium/latest/getting_started.html
-        folium.Choropleth(
-            geo_data = self.tract_shp,
-            name = select_column,
-            data = df,
-            columns=[select_column],
-            key_on="geoid",
-            
+        if "-" in color:
+            color1, color2 = color.split("-")
+            color_scale = list(colour.Color(color1).range_to(colour.Color(color2), 5))
+        else:
+            # Using generic, neutral grey as default "beginning"
+            color_scale = list(
+                colour.Color("#a7a7a8").range_to(colour.Color(color1), 5)
+            )
 
-
-
+        map_colors = cm.LinearColormap(
+            [color.hex for color in color_scale],
+            index = data_scale
         )
 
+        # Filter tracts to the geo_ids in database call. Convert to geoJSON
+        tracts = self.tract_shp["geo_id"].isin(df["geo_id"].unique())
+        tracts = tracts.to_json()
 
+        # geo_df = df.merge(self.tract_shp, how = "left", on = "geo_id")
+        # Adapted from folium documentation: https://python-visualization.github.io/folium/latest/getting_started.html
+        folium.GeoJson(
+            data = tracts,
+            style_function = lambda feature: {
+                "fillColor": map_colors(df[feature["id"]]),
+                "color": "black",
+                "weight": 2,
+                "dashArray": "1",
+            }        
+        ).add_to(map)
 
-
-        #use import colour to generate a color scale for the map
-        # https://pypi.org/project/colour/
-
-        # Use fisher-jenks natural breaks
-        # https://github.com/mthh/jenkspy
         pass
 
     def get_data(self, json_response_obj: json_response) -> str:
