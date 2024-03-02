@@ -33,7 +33,7 @@ def clean_richmond_data (state_list):
     """
     # city_dict = {} #build this out so all the rows can be seen in the data frame!!!
     # city_list_final = []
-    mapping_inequality=open(r'mappinginequality.json')
+    mapping_inequality=open(r'data_collection/source_data/mappinginequality.json')
     
     # richmond_data = json.load(mapping_inequality)
     richmond_data = gpd.read_file(mapping_inequality)
@@ -119,7 +119,7 @@ def clean_climate_vul_master (state_list):
     # return climate_index_df
     final_list = []
     
-    climate_vul_df = pd.read_csv(r"404_project/data_collection/source_data/master_cvi_data_overview.csv")
+    climate_vul_df = pd.read_csv(r"data_collection/source_data/master_cvi_data_overview.csv")
     climate_vul_df.drop(columns=['Baseline: All','Baseline: Infrastructure',
     'Baseline: Environment'])
     climate_vul_df["State"] = climate_vul_df["State"].str.strip()
@@ -138,85 +138,119 @@ def clean_climate_vul_master (state_list):
 
 
 def clean_climate_vul_indicators(state_list):
-    # final_dict = {}
-    # final_list = []
-    # climate_vul_df = pd.read_csv(relative_csv_path) #https://datatofish.com/import-csv-file-python-using-pandas/
-    # # climate_vul_df["County"] = climate_vul_df["County"].str.strip()
-    # climate_vul_df["State"] = climate_vul_df["State"].str.strip()
-    # for index,row in climate_vul_df.iterrows():
-    #     if state.lower()== row['State'].lower():
-    #     # if state.lower() == row["State"].lower() and county.lower()==row["County"].lower():
-    #         final_dict = {index: row}
-    #         final_list.append(final_dict)
-    #         climate_index_df = pd.DataFrame(final_list)
-    # return climate_index_df
+   
     final_list = []
-    climate_vul_df = pd.read_csv(r"Master CVI Dataset - indicators.csv")
-    climate_vul_df.drop(columns =['Geographic Coordinates','Self-Reported Physical Health',
-        'Self-Reported Mental Health',"Drug Overdose Deaths per 100,000 People",'Alcohol Abuse',
-        'Suicide Rates','Current Diabetes','Current Adult Asthma','COPDStroke','CHD',
-        'Cancer','High Blood Pressure','Cholesterol Screening','Routine Doctor Visit',
-        'Colonoscopy','Mammogram','Older Men Preventive Screening','Older Women Preventive Screening',
-        'Dental Exams','COVID-19 Deaths','Hepatitis A','Hepatitis B','HIV','Chlamydia','Gonorrhea',
-        'Syphillis','Childhood Asthma','ADHD Prevalence','ADHD Treatment','Veterans Population',
-        'Lane miles per capita','Road Quality and Maintenance','Public Transit Performance','Bridge Quality and Maintenance',
-        'Walkability','Bikability','Residential Energy Cost Burden','Share of energy from fossil fuels',
-        'EV Charging Stations','Modified Retail Food Environment Index','Payday lending rank',
-        'Tax Base: Median Real Estate Taxes Paid','Voter Turnout 2020','Public Library Locations',
-        'Total vehicle miles traveled per capita','Passenger vehicle miles traveled per capita',
-        'Truck vehicle miles traveled per capita','Heavy Duty Vehicle vehicle miles traveled per capita',
-        'Proximity to Ports','Rail Crossings','Traffic Proximity and Volume','National Transportation Noise Map',
-        'Risk-Screening Environmental Indicators (RSEI)','Air Tox Respiratory','Air Tox Neurological','Air Tox Liver','Air Tox Developmental',
-        'Air Tox Reproductive','Air Tox Kidney','Air Tox Immunological','Air Tox Thyroid',
-        'Air Tox Total Cancer Risk','Black Carbon','Agricultural pesticides','Lead Paint: % housing units built before 1960',
-        'Superfund Sites','Brownfields','Stream Toxicity Risk-Screening Environmental Indicators (RSEI)',
-        'Proximity to facilities participating in air markets','NPL sites','Hazardous Waste Management Facilities (TSDFs)',
-        'Hazardous Waste Generator/Incinerators','Facilities with Enforcement or Violation',
-        'Landfills','TSCA Facilities','Risk Management Plan Facilities','Chemical Manufacturers',
-        'Metal Recyclers','Active Oil and Gas Wells','Annual average PM2.5 concentrations','NO2 concentration',
-        'Ozone concentration','Parks and Greenspace','Impermeable Surfaces','Forest Land Cover',
-        'Increase in childhood asthma incidence','Aedes aldopictus dengue transmission increase',
-        'Aedes aegypti dengue transmission increase','Aedes aegypti zika transmission increase',
-        'Property taxes expected to be lost by 2045 due to chronic inundation','High-Risk Jobs Productivity (% Change)',
-        'Yields (% change)','Outdoor workers - work days at risk per year','Expected Annual Loss - Agriculture Value',
-        'Expected Annual Loss - Building Value','Expected Annual Loss - Population Equivalence',
-        'Residential Energy Expenditures (% change)','Share of Jobs in Agriculture','Methane Emissions',
-        'Property Crimes (% change)','Violent Crimes (% change)','Cold Wave - Annualized Frequency','Days with maximum temperature above 35 C',
-        'Days with maximum temperature above 40C','Frost Days','Maximum of maximum temperatures','Mean temperature'
-        ,'Drought - Annualized Frequency','Consecutive Dry Days','Wildfire - Annualized Frequency','Surface PM2.5',
-        'Snowfall','Standardized Precip Index','Total Precipitation','Coastal Flooding - Annualized Frequency',
-        'Riverine Flooding - Annualized Frequency','Sea Level Rise','Hurricane - Annualized Frequency',
-        'Tornado - Annualized Frequency','Winter Weather - Annualized Frequency'])
+    climate_vul_df = pd.read_csv(r"data_collection/source_data/master_cvi_data_indicators.csv")
+    filtered_dict = {"State":'state','County':'county','FIPS Code':'geo_id',
+                     'Geographic Coordinates':'geographic_coordinates',
+                     'Infant Mortality':'infant_mortality','Child Mortality':'child_mortality',
+                     'Free or Reduced Price School Lunch':'free_reduced_school_lunch_price',
+                     'Medically Underserved Areas':'medically_underserved_areas',
+                    'Current Lack of Health Insurance':'current_lack_health_insurance',
+                    'Proximity to hospitals':'proximity_hospitals','Below Poverty':'below_poverty',
+                    'Unemployed':'unemployed','Low Income':'low_income',
+                    'No High School Diploma':'no_hs_diploma',
+                    'Single-Parent Households':"single_parent_household",
+                    'Minority':'minority','Speaks English Less than Well':"less_english",
+                    'Undocumented Population':'undocumented_pop', 'Homeless Population':'homeless_pop',
+                    'Veterans Population':'vet_pop','Mobile Homes':'mobile_homes',
+                    'Food Insecurity': 'food_insecurity','Housing Affordability (renters)':'renter_affordability',
+                    'Housing Affordability (owners)':'owner_affordability','HUD Public Housing':'public_housing',
+                    'Temperature-related mortality': 'temp_mortality','Deaths from climate disasters':'climate_disaster_deaths',
+                    'FEMA Hazard Mitigation Grants': 'fema_hazard_mit_grants',
+                    'Cost of climate disasters':'climate_disaster_cost',
+                    'Urban Heat Island Extreme Heat Days':'urban_heat_isl_days',
+                    'Drought - Annualized Frequency': "annual_drought_freq",
+                    'Coastal Flooding - Annualized Frequency': 'annual_coastal_flooding_freq',
+                    "Sea Level Rise":"sea_level_rise",
+                    "Hurricane - Annualized Frequency":'annual_hurricane_freq',
+                    'Tornado - Annualized Frequency': 'annual_tornado_freq',
+                    'Winter Weather - Annualized Frequency': "annual_winter_weather_freq"
+                    }
+    climate_vul_df = climate_vul_df[(filtered_dict.keys())]      
     climate_vul_df["State"] = climate_vul_df["State"].str.strip()
+    for col in climate_vul_df.columns:
+        # print(col)
+        if col in filtered_dict:
+            # print(len(col))
+            for state in state_list:
+                state_data = climate_vul_df[climate_vul_df['State'].str.lower() == state.lower()]
+                final_list.append(state_data)
+                if final_list:
+                    climate_index_df = pd.concat(final_list, ignore_index=True)
+                    pd.set_option('display.max_columns', None)
+                    # print(climate_index_df)
+                return climate_index_df
+    
+    # climate_vul_df.drop(columns =['Geographic Coordinates','Self-Reported Physical Health',
+    #     'Self-Reported Mental Health',"Drug Overdose Deaths per 100,000 People",'Alcohol Abuse',
+    #     'Suicide Rates','Current Diabetes','Current Adult Asthma','COPDStroke','CHD',
+    #     'Cancer','High Blood Pressure','Cholesterol Screening','Routine Doctor Visit',
+    #     'Colonoscopy','Mammogram','Older Men Preventive Screening','Older Women Preventive Screening',
+    #     'Dental Exams','COVID-19 Deaths','Hepatitis A','Hepatitis B','HIV','Chlamydia','Gonorrhea',
+    #     'Syphillis','Childhood Asthma','ADHD Prevalence','ADHD Treatment','Veterans Population',
+    #     'Lane miles per capita','Road Quality and Maintenance','Public Transit Performance','Bridge Quality and Maintenance',
+    #     'Walkability','Bikability','Residential Energy Cost Burden','Share of energy from fossil fuels',
+    #     'EV Charging Stations','Modified Retail Food Environment Index','Payday lending rank',
+    #     'Tax Base: Median Real Estate Taxes Paid','Voter Turnout 2020','Public Library Locations',
+    #     'Total vehicle miles traveled per capita','Passenger vehicle miles traveled per capita',
+    #     'Truck vehicle miles traveled per capita','Heavy Duty Vehicle vehicle miles traveled per capita',
+    #     'Proximity to Ports','Rail Crossings','Traffic Proximity and Volume','National Transportation Noise Map',
+    #     'Risk-Screening Environmental Indicators (RSEI)','Air Tox Respiratory','Air Tox Neurological','Air Tox Liver','Air Tox Developmental',
+    #     'Air Tox Reproductive','Air Tox Kidney','Air Tox Immunological','Air Tox Thyroid',
+    #     'Air Tox Total Cancer Risk','Black Carbon','Agricultural pesticides','Lead Paint: % housing units built before 1960',
+    #     'Superfund Sites','Brownfields','Stream Toxicity Risk-Screening Environmental Indicators (RSEI)',
+    #     'Proximity to facilities participating in air markets','NPL sites','Hazardous Waste Management Facilities (TSDFs)',
+    #     'Hazardous Waste Generator/Incinerators','Facilities with Enforcement or Violation',
+    #     'Landfills','TSCA Facilities','Risk Management Plan Facilities','Chemical Manufacturers',
+    #     'Metal Recyclers','Active Oil and Gas Wells','Annual average PM2.5 concentrations','NO2 concentration',
+    #     'Ozone concentration','Parks and Greenspace','Impermeable Surfaces','Forest Land Cover',
+    #     'Increase in childhood asthma incidence','Aedes aldopictus dengue transmission increase',
+    #     'Aedes aegypti dengue transmission increase','Aedes aegypti zika transmission increase',
+    #     'Property taxes expected to be lost by 2045 due to chronic inundation','High-Risk Jobs Productivity (% Change)',
+    #     'Yields (% change)','Outdoor workers - work days at risk per year','Expected Annual Loss - Agriculture Value',
+    #     'Expected Annual Loss - Building Value','Expected Annual Loss - Population Equivalence',
+    #     'Residential Energy Expenditures (% change)','Share of Jobs in Agriculture','Methane Emissions',
+    #     'Property Crimes (% change)','Violent Crimes (% change)','Cold Wave - Annualized Frequency','Days with maximum temperature above 35 C',
+    #     'Days with maximum temperature above 40C','Frost Days','Maximum of maximum temperatures','Mean temperature'
+    #     ,'Drought - Annualized Frequency','Consecutive Dry Days','Wildfire - Annualized Frequency','Surface PM2.5',
+    #     'Snowfall','Standardized Precip Index','Total Precipitation','Coastal Flooding - Annualized Frequency',
+    #     'Riverine Flooding - Annualized Frequency','Sea Level Rise','Hurricane - Annualized Frequency',
+    #     'Tornado - Annualized Frequency','Winter Weather - Annualized Frequency'])
+    
+    
+    # climate_vul_df["State"] = climate_vul_df["State"].str.strip()
 
-    for state in state_list:
-        state_data = climate_vul_df[climate_vul_df['State'].str.lower() == state.lower()]
-        final_list.append(state_data)
+    # for state in state_list:
+    #     state_data = climate_vul_df[climate_vul_df['State'].str.lower() == state.lower()]
+    #     i
+    #     final_list.append(state_data)
 
-    if final_list:
-        climate_index_df = pd.concat(final_list, ignore_index=True)
-        # pd.set_option('display.max_columns', None)
-        # print(climate_index_df)
-    return climate_index_df
+    # if final_list:
+    #     climate_index_df = pd.concat(final_list, ignore_index=True)
+    #     # pd.set_option('display.max_columns', None)
+    #     # print(climate_index_df)
+    # return climate_index_df
     
 ########################################
-def combine_CVI_df(state_list,merged_cvi_data:str): 
+def combine_CVI_df(merged_cvi_data:str): 
+    state_list = ["LA", "IL", "TX", "WA","CA"]
     df_cvi_master = clean_climate_vul_master(state_list)
     df_cvi_indicators = clean_climate_vul_indicators(state_list)
 
     merged_cvi_df = pd.merge(df_cvi_master,df_cvi_indicators, how='left', left_on=['FIPS Code'], right_on=['FIPS Code']) 
-
-    merged_cvi_df.to_csv(merged_cvi_data, index=False,header=True) #code taken from PA 4! 
-    print(f"The CSV file '{merged_cvi_data}' was created!") 
+    return merged_cvi_df
+    # merged_cvi_df.to_csv(merged_cvi_data, index=False,header=True) #code taken from PA 4! 
+    # print(f"The CSV file '{merged_cvi_data}' was created!") 
 
 ##############################################################################
 
-def clean_fema_data(relative_csv_path,county,state,fema_data):
-    rename_fema_dict = {"STATE": "State","COUNTY":"County","COUNTYFIPS": "Countyfips", #https://saturncloud.io/blog/how-to-rename-column-and-index-with-pandas/#:~:text=Renaming%20columns%20in%20Pandas%20is,are%20the%20new%20column%20names.
-    "TRACT": "Tract","TRACTFIPS": "Tractfips","POPULATION": "Population",
-    "RISK_VALUE": "Risk_value","SOVI_SCORE": "Social_vul_score","RESL_SCORE": "Resilience_score",
-    "DRGT_EVNTS": "Drought_events","DRGT_AFREQ": "Drought_area_freq","DRGT_EXP_AREA": "Drought_experience_area",
-    "DRGT_RISKS":"Drought_risk","ERQK_EVNTS": "Earthquake_events","ERQK_AFREQ":"Earthquake_area_freq",
+def clean_fema_data(county,state):
+    rename_fema_dict = {"STATE": "state","COUNTY":"county","COUNTYFIPS": "countyfips", #https://saturncloud.io/blog/how-to-rename-column-and-index-with-pandas/#:~:text=Renaming%20columns%20in%20Pandas%20is,are%20the%20new%20column%20names.
+    "TRACT": "tract","TRACTFIPS": "tractfips","POPULATION": "population",
+    "RISK_VALUE": "risk_value","SOVI_SCORE": "social_vul_score","RESL_SCORE": "resilience_score",
+    "DRGT_EVNTS": "drought_events","DRGT_AFREQ": "drought_area_freq","DRGT_EXP_AREA": "drought_experience_area",
+    "DRGT_RISKS":"drought_risk","ERQK_EVNTS": "earthquake_events","ERQK_AFREQ":"earthquake_area_freq",
     "ERQK_EXP_AREA":"Earthquake_experience_area","ERQK_RISKS":"Earthquake_risk","HAIL_EVNTS": "Hail_events",
     "HAIL_AFREQ":"Hail_area_freq","HAIL_EXP_AREA":"Hail_experience_area","HAIL_RISKS":"Hail_risks",
     "HWAV_EVNTS":"Heatwave_events","HWAV_AFREQ":"Heatwave_area","HWAV_EXP_AREA":'Heatwave_area_exposure',
@@ -232,14 +266,14 @@ def clean_fema_data(relative_csv_path,county,state,fema_data):
     "WNTW_RISKS":"Winter_risks"}
     # fema_dict = {}
     fema_list = []
-    fema_df = pd.read_csv(relative_csv_path)
+    fema_df = pd.read_csv(r"data_collection/source_data/fema_nri_censustracts.csv")
     fema_df = fema_df.drop(columns=["OID_","NRI_ID","STATEFIPS","COUNTYTYPE","STCOFIPS"
     ,"AREA","RISK_SPCTL","EAL_SCORE","EAL_RATNG","EAL_SPCTL","EAL_VALT","EAL_VALB"
     ,"EAL_VALP","EAL_VALPE","EAL_VALA","ALR_VALB","ALR_VALP","ALR_VALA","ALR_NPCTL",
     "ALR_VRA_NPCTL","AVLN_EVNTS","AVLN_AFREQ","AVLN_EXP_AREA","AVLN_EXPB",
     "AVLN_EXPP","AVLN_EXPPE","AVLN_EXPT", "AVLN_HLRB", "AVLN_HLRP","AVLN_HLRR",
-    "AVLN_EALB", "AVLN_EALP", "AVLN_EALPE", "AVLN_EALT", "AVLN_EALS","AVLN_EALR",
-    "AVLN_ALRB", "AVLN_ALRP",  "AVLN_RISKV","AVLN_RISKS", "AVLN_RISKR", "CFLD_EVNTS",
+    "AVLN_EALB", "AVLN_EALP", "AVLN_EALPE", "AVLN_EALT", "AVLN_EALS",
+    "AVLN_ALRP",  "AVLN_RISKV","AVLN_RISKS", "AVLN_RISKR", "CFLD_EVNTS",
     "CFLD_AFREQ", "CFLD_EXP_AREA", "CFLD_EXPB", "CFLD_EXPP", "CFLD_EXPPE", "CFLD_EXPT", 
     "CFLD_HLRB", "CFLD_HLRP","CFLD_HLRR", "CFLD_EALB", "CFLD_EALP", "CFLD_EALPE", 
     "CFLD_EALT", "CFLD_EALS","CFLD_EALR", "CFLD_ALRB", "CFLD_ALRP", "CFLD_RISKV", 
@@ -260,7 +294,7 @@ def clean_fema_data(relative_csv_path,county,state,fema_data):
     "LNDS_EXPB","LNDS_EXPPE", "LNDS_EXPT", "LNDS_HLRB","LNDS_HLRP", "LNDS_HLRR",
     "LNDS_EALB",  "LNDS_EALS", "LNDS_EALR", "LNDS_ALRB","STATEABBRV","BUILDVALUE",
     "AGRIVALUE","RISK_SCORE","RISK_RATNG","SOVI_RATNG","SOVI_SPCTL","RESL_RATNG",
-    "RESL_SPCTL","RESL_VALUE","CRF_VALUE","AVLN_ALR_NPCTL","CFLD_ALR_NPCTL",
+    "RESL_SPCTL","RESL_VALUE","CRF_VALUE","AVLN_ALRP","CFLD_ALR_NPCTL",
     "CFLD_RISKR","CWAV_EVNTS","CWAV_AFREQ","CWAV_EXP_AREA","CWAV_EXPB","CWAV_EXPP",
     "CWAV_EXPPE","CWAV_EALP","CWAV_EALPE","CWAV_EALT","CWAV_ALR_NPCTL","CWAV_RISKV",
     "CWAV_RISKS","CWAV_RISKR","DRGT_EALT","DRGT_ALR_NPCTL","DRGT_RISKV","DRGT_RISKR",
@@ -314,11 +348,12 @@ def clean_fema_data(relative_csv_path,county,state,fema_data):
                 fema_dict[rename_fema_dict[key]]= row[key]
             fema_list.append(fema_dict)
     final_fema_df = pd.DataFrame(fema_list)
+    display (final_fema_df)
                 
                 # dataframe = pd.DataFrame(fema_dict)
     # pprint(final_df)
-    final_fema_df.to_csv(fema_data, index=False,header=True) #code taken from geeksforgeeks
-    print(f"CSV file '{fema_data.csv}' has been created!")
+    # final_fema_df.to_csv(fema_data, index=False,header=True) #code taken from geeksforgeeks
+    # print(f"CSV file '{fema_data.csv}' has been created!")
 
 
      
