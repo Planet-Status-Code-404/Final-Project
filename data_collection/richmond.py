@@ -2,6 +2,7 @@ import json
 from pprint import pprint
 import pandas as pd 
 import geopandas as gpd
+import matplotlib.pyplot as plt
 from pygris import tracts
 import requests
 
@@ -25,72 +26,86 @@ class Tract: #this code has been taken from agents.py
         # print(f"CSV file '{state_tracts_file.csv}' has been created!")
     
 
-def clean_richmond_data (city_list):
+def clean_richmond_data (state_list):
     """
     Purpose: 
     Input: the name of the city whose data we want to explore
     Output: dictionaries with data for said city
     """
-    city_dict = {} #build this out so all the rows can be seen in the data frame!!!
-    city_list = []
-    mapping_inequality=open(r'data_collection/mappinginequality.json')
-    richmond_data = json.load(mapping_inequality)
-    for key, data in richmond_data.items():
-        if key == "features":
-            for index in range(len(data)): #iterating through range of the length of the data #index #summer TA helped 
-                    city_data = data[index]["properties"]["city"]
-                    if city_data == city_name:
-                        #  city_dict = {"properties": data[index]["properties"]}
-                        city_dict = {"area_id": data[index]["properties"]["area_id"], 
-                            "city": data[index]["properties"]["city"],
-                            "state": data[index]["properties"]["state"],
-                            "city_survey":data[index]["properties"]["city_survey"],
-                            "category": data[index]["properties"]["category"],
-                            "grade":data[index]["properties"]["grade"],
-                            "label": data[index]["properties"]["label"],
-                            "residential":data[index]["properties"]["residential"],
-                            "commercial":data[index]["properties"]["commercial"],
-                            "industrial":data[index]["properties"]["industrial"],
-                            "fill":data[index]["properties"]["fill"],
-                            "geometry_type": data[index]["geometry"]["type"],
-                            "coordinates": data[index]["geometry"]["coordinates"],} #Summer TA helped 
-                        # city_dict = {"property": data[index]["properties"], "geometry": data[index]["geometry"]} #summer TA helped 
-                        
-                        # polygon = data[index]["geometry"]["type"]
-                        # tracts = gpd.read_file("/Users/kiranjivnani/Final-Project/data_collection/Boundaries - Census Tracts - 2010.geojson")
-                        # joined_data = gpd.sjoin(polygon, tracts, op='intersects')
-                        # for index, row in joined_data.iterrows():
-                        #     print(row['tract_id'])
-                        
-                        # print(pygris.tract(state = "NY"))
-                        
-                        # ny_tract = pygris.tract(state= "NY")
-                        # print(ny_tract)
-                        
-                        city_list.append(city_dict)
+    # city_dict = {} #build this out so all the rows can be seen in the data frame!!!
+    # city_list_final = []
+    mapping_inequality=open(r'mappinginequality.json')
+    
+    # richmond_data = json.load(mapping_inequality)
+    richmond_data = gpd.read_file(mapping_inequality)
+    richmond_dataframe = richmond_data[richmond_data['state'].isin(state_list)]
+    return richmond_dataframe
 
-    richmond_redlining_df=pd.DataFrame(city_list)
-    # pprint(dataframe)
+    # print(richmond_data,"richmond")
+    
+    # for key, data in richmond_data.items():
+    #     if key == "features":
+    #         for index in range(len(data)): #iterating through range of the length of the data #index #summer TA helped 
+    #                 city_data = data[index]["properties"]["city"]
+    #                 for city_name in city_list:
+    #                     # print(city_list)
+    #                     if city_data == city_name:
+    #                         #  city_dict = {"properties": data[index]["properties"]}
+    #                         city_dict = {"area_id": data[index]["properties"]["area_id"], 
+    #                             "city": data[index]["properties"]["city"],
+    #                             "state": data[index]["properties"]["state"],
+    #                             "city_survey":data[index]["properties"]["city_survey"],
+    #                             "category": data[index]["properties"]["category"],
+    #                             "grade":data[index]["properties"]["grade"],
+    #                             "label": data[index]["properties"]["label"],
+    #                             "residential":data[index]["properties"]["residential"],
+    #                             "commercial":data[index]["properties"]["commercial"],
+    #                             "industrial":data[index]["properties"]["industrial"],
+    #                             "fill":data[index]["properties"]["fill"],
+    #                             "geometry_type": data[index]["geometry"]["type"],
+    #                             "coordinates": data[index]["geometry"]["coordinates"],} #Summer TA helped 
+                            
+    #                         # city_dict = {"property": data[index]["properties"], "geometry": data[index]["geometry"]} #summer TA helped 
+    #                         # print(city_dict,"dict")
+    #                         city_list_final.append(city_dict)
+    #                         print(city_list_final)
+                            # print(city_list_final,"final")
+    # richmond_redlining_df=gpd.GeoDataFrame(city_list_final)
+    # return richmond_redlining_df
+    
+####################################################
+    
+
 
     # richmond_redlining_df.to_csv(richmond_redlining, index=False,header=True) #code taken from geeksforgeeks
     # print(f"CSV file '{richmond_redlining}' has been created!")
 ####################################################
+     #this code is taken from gis stack exchange and modified  
+def matching_tracts(state_list,combined_tract_redlining:str):
+    # richmond_data_df= clean_richmond_data(state_list)
+    # tracts_shp_df = Tract()
+    # tracts_shp_df.tract_shp = tracts_shp_df.tract_shp.to_crs(richmond_data_df.crs)
+    # combined_tracts_df = gpd.overlay(tracts_shp_df.tract_shp, richmond_data_df, how='intersection')
+    # # combined_tracts_df = gpd.overlay(tracts_shp_df.tract_shp, richmond_data_df, how='intersection')
+    # combined_tracts_df['tract_area'] = combined_tracts_df.geometry.to_crs
+    # combined_tracts_df.sort_values(by='tract_area', inplace=True)
+    # combined_tracts_df.drop_duplicates(subset='tract_area', keep= False, inplace=True)
+    # combined_tracts_df.drop(columns=['tract_area'], inplace=True)
+    # combined_tracts_df.to_csv(combined_tract_redlining, index=False,header=True) #code taken from geeksforgeeks
+    # print(f"CSV file '{combined_tract_redlining}' has been created!")
+    richmond_data_df = clean_richmond_data(state_list)
+    tracts_shp_df = Tract()
+    tracts_shp_df.tract_shp = tracts_shp_df.tract_shp.to_crs(richmond_data_df.crs)
+    combined_tracts_df = gpd.overlay(tracts_shp_df.tract_shp, richmond_data_df, how='intersection')
+    combined_tracts_df['tract_area'] = combined_tracts_df.geometry.to_crs(richmond_data_df.crs).area # THIS WAS THE MISSING PIECE 
+    combined_tracts_df.drop_duplicates(subset='tract_area', keep=False, inplace=True)
+    combined_tracts_df.drop(columns=['tract_area'], inplace=True)
     
-    def matching_tracts(tracts_shp_df,richmond_data_df,city_list,combined_tract_redlining:str):
-        richmond_data_df= clean_richmond_data(city_list)
-        tracts_shp_df = Tract.get_shapefiles()
-        combined_tracts_df = gpd.overlay(tracts_shp_df, richmond_data_df, how='intersection')
-        combined_tracts_df['tract_area'] = combined_tracts_df.geometry.area
-        combined_tracts_df.sort_values(by='area', inplace=True)
-        combined_tracts_df.drop_duplicates(subset='ogc_fid', keep= False, inplace=True)
-        combined_tracts_df.drop(columns=['area'], inplace=True)
-        combined_tracts_df.to_csv(combined_tract_redlining, index=False,header=True) #code taken from geeksforgeeks
-    # print(f"CSV file '{richmond_redlining}' has been created!")
-    
-        #this code is taken from gis stack exchange and modified 
+    combined_tracts_df.to_csv(combined_tract_redlining, index=False, header=True)
+      
 ##############################################################################
 
-def clean_climate_vul_index_master (state_list):
+def clean_climate_vul_master (state_list):
     # final_dict = {}
     # final_list = []
     # climate_vul_df = pd.read_csv(relative_csv_path) #https://datatofish.com/import-csv-file-python-using-pandas/
@@ -105,8 +120,8 @@ def clean_climate_vul_index_master (state_list):
     # return climate_index_df
     final_list = []
     
-    climate_vul_df = pd.read_csv(r"data_collection/Master CVI Dataset - overview.csv")
-    climate_index_df.drop(columns=['All,Baseline','Infrastructure,Baseline',
+    climate_vul_df = pd.read_csv(r"Master CVI Dataset - overview.csv")
+    climate_vul_df.drop(columns=['Baseline: All','Baseline: Infrastructure',
     'Baseline: Environment'])
     climate_vul_df["State"] = climate_vul_df["State"].str.strip()
     for state in state_list:
@@ -117,7 +132,7 @@ def clean_climate_vul_index_master (state_list):
         climate_index_df = pd.concat(final_list, ignore_index=True)
         # pd.set_option('display.max_columns', None)
         # print(climate_index_df)
-        return climate_index_df
+    return climate_index_df
 
     # climate_index_df.to_csv(clean_climate_vul, index=False,header=True) #code taken from geeksforgeeks
     # print(f"CSV file '{clean_climate_vul}' has been created!")
@@ -137,37 +152,37 @@ def clean_climate_vul_indicators(state_list):
     #         climate_index_df = pd.DataFrame(final_list)
     # return climate_index_df
     final_list = []
-    climate_vul_df = pd.read_csv(r"data_collection/Master CVI Dataset - indicators.csv")
+    climate_vul_df = pd.read_csv(r"Master CVI Dataset - indicators.csv")
     climate_vul_df.drop(columns =['Geographic Coordinates','Self-Reported Physical Health',
         'Self-Reported Mental Health',"Drug Overdose Deaths per 100,000 People",'Alcohol Abuse',
-        'Suicide Rates','Current Diabetes','Current Adult Asthma','Stroke','COPD','CHD',
+        'Suicide Rates','Current Diabetes','Current Adult Asthma','COPDStroke','CHD',
         'Cancer','High Blood Pressure','Cholesterol Screening','Routine Doctor Visit',
         'Colonoscopy','Mammogram','Older Men Preventive Screening','Older Women Preventive Screening',
-        'Dental Exams','COVID-19 Deaths','Hepatitis A','Hepatitis B','HIV','Chlamydia','Gonorrhea'
-        ,'Syphillis','Childhood Asthma','ADHD Prevalence','ADHD Treatment','Veterans Population',
-        ,'Lane miles per capita','Road Quality and Maintenance','Performance,Bridge Quality and Maintenance',
+        'Dental Exams','COVID-19 Deaths','Hepatitis A','Hepatitis B','HIV','Chlamydia','Gonorrhea',
+        'Syphillis','Childhood Asthma','ADHD Prevalence','ADHD Treatment','Veterans Population',
+        'Lane miles per capita','Road Quality and Maintenance','Public Transit Performance','Bridge Quality and Maintenance',
         'Walkability','Bikability','Residential Energy Cost Burden','Share of energy from fossil fuels',
         'EV Charging Stations','Modified Retail Food Environment Index','Payday lending rank',
-        ,'Tax Base: Median Real Estate Taxes Paid','Voter Turnout 2020','Public Library Locations'
+        'Tax Base: Median Real Estate Taxes Paid','Voter Turnout 2020','Public Library Locations',
         'Total vehicle miles traveled per capita','Passenger vehicle miles traveled per capita',
         'Truck vehicle miles traveled per capita','Heavy Duty Vehicle vehicle miles traveled per capita',
         'Proximity to Ports','Rail Crossings','Traffic Proximity and Volume','National Transportation Noise Map',
         'Risk-Screening Environmental Indicators (RSEI)','Air Tox Respiratory','Air Tox Neurological','Air Tox Liver','Air Tox Developmental',
         'Air Tox Reproductive','Air Tox Kidney','Air Tox Immunological','Air Tox Thyroid',
         'Air Tox Total Cancer Risk','Black Carbon','Agricultural pesticides','Lead Paint: % housing units built before 1960',
-        ,'Superfund Sites','Brownfields','Stream Toxicity Risk-Screening Environmental Indicators (RSEI)',
+        'Superfund Sites','Brownfields','Stream Toxicity Risk-Screening Environmental Indicators (RSEI)',
         'Proximity to facilities participating in air markets','NPL sites','Hazardous Waste Management Facilities (TSDFs)',
         'Hazardous Waste Generator/Incinerators','Facilities with Enforcement or Violation',
         'Landfills','TSCA Facilities','Risk Management Plan Facilities','Chemical Manufacturers',
-        'Metal Recyclers,Active Oil and Gas Wells','Annual average PM2.5 concentrations','NO2 concentration',
-        'Ozone concentration,Parks and Greenspace','Impermeable Surfaces','Forest Land Cover',
-        ,'Increase in childhood asthma incidence','Aedes aldopictus dengue transmission increase',
+        'Metal Recyclers','Active Oil and Gas Wells','Annual average PM2.5 concentrations','NO2 concentration',
+        'Ozone concentration','Parks and Greenspace','Impermeable Surfaces','Forest Land Cover',
+        'Increase in childhood asthma incidence','Aedes aldopictus dengue transmission increase',
         'Aedes aegypti dengue transmission increase','Aedes aegypti zika transmission increase',
         'Property taxes expected to be lost by 2045 due to chronic inundation','High-Risk Jobs Productivity (% Change)',
         'Yields (% change)','Outdoor workers - work days at risk per year','Expected Annual Loss - Agriculture Value',
         'Expected Annual Loss - Building Value','Expected Annual Loss - Population Equivalence',
         'Residential Energy Expenditures (% change)','Share of Jobs in Agriculture','Methane Emissions',
-        'Property Crimes (% change)','Violent Crimes (% change)','Cold Wave - Annualized Frequency,Days with maximum temperature above 35 C',
+        'Property Crimes (% change)','Violent Crimes (% change)','Cold Wave - Annualized Frequency','Days with maximum temperature above 35 C',
         'Days with maximum temperature above 40C','Frost Days','Maximum of maximum temperatures','Mean temperature'
         ,'Drought - Annualized Frequency','Consecutive Dry Days','Wildfire - Annualized Frequency','Surface PM2.5',
         'Snowfall','Standardized Precip Index','Total Precipitation','Coastal Flooding - Annualized Frequency',
@@ -183,16 +198,17 @@ def clean_climate_vul_indicators(state_list):
         climate_index_df = pd.concat(final_list, ignore_index=True)
         # pd.set_option('display.max_columns', None)
         # print(climate_index_df)
-        return climate_index_df
-
-def combine_CVI_df(df_cvi_master,df_cvi_indicators,state_list,merged_cvi_data:str): 
-    df_cvi_master = clean_climate_vul_index_master(state_list)
+    return climate_index_df
+    
+########################################
+def combine_CVI_df(state_list,merged_cvi_data:str): 
+    df_cvi_master = clean_climate_vul_master(state_list)
     df_cvi_indicators = clean_climate_vul_indicators(state_list)
 
-    merged_cvi_df = pd.merge(df_cvi_master,df_cvi_indicators how='left', left_on=['FIPS Code'], right_on=['FIPS Code']) 
+    merged_cvi_df = pd.merge(df_cvi_master,df_cvi_indicators, how='left', left_on=['FIPS Code'], right_on=['FIPS Code']) 
 
     merged_cvi_df.to_csv(merged_cvi_data, index=False,header=True) #code taken from PA 4! 
-    print(f"The CSV file '{merged_cvi_data.csv}' was created!") 
+    print(f"The CSV file '{merged_cvi_data}' was created!") 
 
 ##############################################################################
 
