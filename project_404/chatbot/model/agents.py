@@ -25,6 +25,7 @@ class agent_functions:
 
     def __init__(self):
         self.tract_shp = self.get_shapefiles().set_index("GEOID")
+        path
         self.db = "SQL database"
 
 
@@ -55,6 +56,7 @@ class agent_functions:
     def construct_where_statement(self, json_response_obj: json_response) -> str:
         """Construct WHERE statement with for SQL"""
         conditions_dict = json_response_obj.conditions
+        # If conditions are set for restrictions across vairbles use OR
         cond = "OR".join([cond for cond in conditions_dict.values()])
 
         return cond
@@ -130,7 +132,7 @@ class agent_functions:
 
     def request_map(self, json_response_obj: json_response) -> str:
         """
-        Use map from 
+        Use map from
          
         """
         # Used https://www.latlong.net/ to find coordinates
@@ -300,4 +302,15 @@ class function_calling_agent(ollama.Client):
 
         return "\n".join(answers)
 
-            
+class response_agent(ollama.Client):
+    """
+    Agent to take answers from the function calling agent and respond to user
+
+    """
+
+    def __init__(self, tunnel_key) -> None:
+        self.model_name = "mistral"
+        self.context = None
+        self.functions = agent_functions()
+
+        super().__init__(host = tunnel_key)

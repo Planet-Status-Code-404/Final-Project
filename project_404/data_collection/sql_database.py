@@ -1,9 +1,10 @@
 import sqlite3
 import os
 import csv
+import pathlib
 
-db_file_path = "data_collection/output_data/climate_database.db"
-csv_directory_path = "data_collection/output_data"
+db_file_path = pathlib.Path(__file__).parent / "output_data/climate_database.db"
+csv_directory_path = pathlib.Path(__file__).parent / "output_data"
 
 
 def insert_tables_to_database(csv_directory_path, db_file_path):

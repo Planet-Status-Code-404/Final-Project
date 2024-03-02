@@ -128,7 +128,7 @@ class json_response:
         # Simple
         raw_params = [param.lower() for param in json_object["parameters"]]
         if self.type == "simple":
-            self.parameters = {"column": raw_params[0]}
+            self.parameters = {"column": f"[{VAR_NAMES[raw_params[0]]}].[{raw_params[0]}]"}
 
         # Top k
         if self.func_name == "FIND_TOP_K":
@@ -172,12 +172,12 @@ class json_response:
             # Set variable's table as prefix
             if i == 0:
                 conds_dict[var_name].append(
-                    f"{VAR_NAMES[var_name]}.{var_name} {restriction}"
+                    f"[{VAR_NAMES[var_name]}].[{var_name}] {restriction}"
                 )
             # Combine conditions by boolean operator
             if i > 1:
                 conds_dict[var_name].append(
-                    f"{bool_operators} {VAR_NAMES[var_name]}.{var_name} {restriction}"
+                    f"{bool_operators} [{VAR_NAMES[var_name]}].[{var_name}] {restriction}"
                 )
 
         self.conditions = {
