@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "404_project"
+name = "project_404"
 version = "0.1.0"
 description = "A chatbot to chat about Climate Change"
 authors = ["gregthemitch <gmitchelljr@uchicago.edu>"]
