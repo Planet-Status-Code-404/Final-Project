@@ -5,11 +5,23 @@ import sqlite3
 import pandas as pd
 
 # Need to use provided API key offline
+api_key = ""
 
+# Obtained API key from local environment, kindly comment the following and manually
+# input the api key provided offline to run the file
 api_key = os.environ.get("CENSUS_API_KEY")
 
 
 def load_dataframe(response):
+    """
+    Convert JSON response to a pandas DataFrame.
+
+    Parameters:
+    - response (Response): The JSON response object obtained from an API request.
+
+    Returns:
+    - dataframe (DataFrame): A pandas DataFrame containing the data from the JSON response.
+    """
     data_json = response.json()
     columns = data_json[0]
     rows = data_json[1:]
@@ -17,6 +29,7 @@ def load_dataframe(response):
     return dataframe
 
 
+# Dictionary consisting of Census State codes for targetted states
 state_code_dictionary = {
     "Illinois": "17",
     "Louisiana": "22",
@@ -63,6 +76,8 @@ for state, df in dp_dataframes.items():
 
 compiled_dataframe_dp = pd.concat(compiled_dp, ignore_index=True)
 
+################################################################################
+
 # Demographic and Housing Characteristics(DHC): Race and Housing Characteristics
 variable_guide_dhc = "https://api.census.gov/data/2020/dec/dhc/variables.html"
 url_dhc = "https://api.census.gov/data/2020/dec/dhc?"
@@ -107,6 +122,8 @@ for state, df in ddhc_df_dataframes.items():
 
 compiled_dataframe_dhc = pd.concat(compiled_dhc, ignore_index=True)
 
+################################################################################
+
 # Loading Community Resilience Estimates for Counties
 cre_dictionary = {
     "PRED0_E": "Estimated number of individuals with zero components of social vulnerability",
@@ -150,6 +167,19 @@ compiled_dataframe_cre = pd.concat(cre_compiled_dfs, ignore_index=True)
 
 # Adding the Census_Tract_ID
 def add_census_tract_ID(dataframe, state_column, county_column, tract_column):
+    """
+    Adds a new column 'Census_Tract_ID' to the DataFrame by concatenating state,
+    county, and tract codes.
+
+    Parameters:
+    - dataframe (DataFrame): The pandas DataFrame to which the new column will be added.
+    - state_column (str): The name of the column containing state codes.
+    - county_column (str): The name of the column containing county codes.
+    - tract_column (str): The name of the column containing tract codes.
+
+    Returns:
+    - dataframe (DataFrame): The modified DataFrame with the new 'Census_Tract_ID' column.
+    """
     # Convert columns to strings
     dataframe[state_column] = dataframe[state_column].astype(str)
     dataframe[county_column] = dataframe[county_column].astype(str)
@@ -181,6 +211,7 @@ compiled_dataframe_cre = add_census_tract_ID(
     "tract",
 )
 
+###############################################################################
 
 # Merge the first two DataFrames
 merged_df = pd.merge(
