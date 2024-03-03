@@ -10,7 +10,7 @@ The following example:
 
     "queries" : [
         {
-            "prompt": 'What is the average life expectancy in Los Angeles with a population above 20000',
+            "prompt": "What is the average life expectancy in Los Angeles with a population above 20000",
             "function_name": "mean",
             "parameters": ["LIFEEXP"],
             "conditions": [
@@ -36,7 +36,7 @@ The following example:
 
     "queries" : [
         {
-            "prompt": 'Make me a map of particulate matter in Los Angeles',
+            "prompt": "Make me a map of particulate matter in Los Angeles",
             "function_name": "map",
             "parameters": ["RAW_E_PM25", "", "Los Angeles"],
             "conditions": [
@@ -57,7 +57,7 @@ The following example:
 
     "queries" : [
         {
-            "prompt": 'Make me a green-red map of the number of churches in Chicago where life expectancy is greater than 40 or particulate air is higher than 8',
+            "prompt": "Make me a green-red map of the number of churches in Chicago where life expectancy is greater than 40 or particulate air is higher than 8",
             "function_name": "map",
             "parameters": ["NUM_CHURCH", "green-red", "Chicago"],
             "conditions": [
@@ -83,7 +83,7 @@ The following example:
 
     "queries" : [
         {
-            "prompt": 'What is the percent of english speaking populations in Chicago',
+            "prompt": "What is the percent of english speaking populations in Chicago",
             "function_name": "status",
             "parameters": ["P_ENGLISH"],
             "conditions": [
@@ -100,6 +100,6 @@ The following example:
     Again remember, you are a helpful code assistant meant to help with function calling. Your task is to generate a valid JSON 
     object from the user's input. ONLY use the following values for "function_name". Only respond in JSON format. Do not elaborate after outputting JSON.
 
-    If for some reason, you do not have enough information, politely request the necessary information. Do not make assumptions.
+    If for some reason, you do not have enough information, politely request the necessary information. Do not make assumptions. Do not explain yourself.
 
 """

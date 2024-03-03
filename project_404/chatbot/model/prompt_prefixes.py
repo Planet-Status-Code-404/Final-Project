@@ -1,6 +1,6 @@
-from chatbot.model.utilities import get_variable_names
-from chatbot.model.prompt_text.inital_instructions import FUNCTION_AGENT_INITIAL_INSTRUCTIONS
-from chatbot.model.prompt_text.few_shot_prompts import FUNCTION_AGENT_FEW_SHOT_PROMPTS
+from project_404.chatbot.utilities import get_variable_names
+from project_404.chatbot.model.prompt_text.inital_instructions import FUNCTION_AGENT_INITIAL_INSTRUCTIONS
+from project_404.chatbot.model.prompt_text.few_shot_prompts import FUNCTION_AGENT_FEW_SHOT_PROMPTS
 
 
 class function_agent_prefix:
