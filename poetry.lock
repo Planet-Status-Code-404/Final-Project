@@ -490,6 +490,17 @@ s3 = ["boto3 (>=1.3.1)"]
 test = ["Fiona[s3]", "pytest (>=7)", "pytest-cov", "pytz"]
 
 [[package]]
+name = "fix-busted-json"
+version = "0.0.17"
+description = "Fixes broken JSON string objects"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "fix-busted-json-0.0.17.tar.gz", hash = "sha256:64d3f11896b51812238174f55e001311e02eca3d3be3618724c42d72d894d60d"},
+    {file = "fix_busted_json-0.0.17-py3-none-any.whl", hash = "sha256:1011fb26d664fb280b63d0f9a402a9b88bc1bfb82c7d74425b6b30325e32797b"},
+]
+
+[[package]]
 name = "folium"
 version = "0.15.1"
 description = "Make beautiful maps with Leaflet.js & Python"
@@ -2283,4 +2294,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "38dd82b6a932654aaf79b411c7e859d5420463e5a02bb1ed44d3f6f68b3972fd"
+content-hash = "233e8129d5cc8570efef75523b88ab34f2f8407a6bf9a85374bde1ba0c615771"
