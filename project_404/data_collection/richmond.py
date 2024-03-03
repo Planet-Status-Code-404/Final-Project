@@ -57,12 +57,13 @@ def matching_tracts(state_list): #this code is taken from gis stack exchange and
     combined_tracts_df.drop(columns=['tract_area'], inplace=True)
     return combined_tracts_df
     
-def clean_redlined_with_tract_data(state_list,redlining_tract_csv:str): #combined_tract_redlining:str
+def clean_redlined_with_tract_data(state_list,final_redlining_tract_csv:str): #combined_tract_redlining:str
     redlining_with_tracts_df = matching_tracts(state_list)
     redlining_with_tracts_df.columns = redlining_with_tracts_df.columns.str.lower().str.replace("geoid","geo_id")
     redlining_with_tracts_df = redlining_with_tracts_df[['geo_id'] + [col for col in redlining_with_tracts_df.columns if col != 'geo_id']] #https://saturncloud.io/blog/pandas-tips-reorder-columns/
-    redlining_with_tracts_df.to_csv(f"{redlining_tract_csv}.csv", index=False, header=True) #taken from my pa4
-    print(f"The new CSV file '{redlining_tract_csv} was created!") #do we need this in here or should we take it out?
+    redlining_with_tracts_df = redlining_with_tracts_df.drop_duplicates(subset=['geo_id'], keep="last") #https://www.aporia.com/resources/how-to/drop-duplicate-rows-across-columns-dataframe/#:~:text=and%20PySpark%20DataFrames.-,Pandas,the%20columns%20are%20the%20same.&text=In%20some%20cases%2C%20having%20the,for%20being%20considered%20as%20duplicates.
+    redlining_with_tracts_df.to_csv(f"{final_redlining_tract_csv}.csv", index=False, header=True) #taken from my pa4
+    print(f"The new CSV file '{final_redlining_tract_csv} was created!") #do we need this in here or should we take it out?
         
 # This section of the file contains data collection, processing, manipulation, and cleaning functions
 # for the Climate Vulnerability datasets.
@@ -151,8 +152,9 @@ def combine_cvi_df(merged_cvi_data:str):
     state_list = ["LA", "IL", "TX", "WA","CA"]
     df_cvi_master = clean_climate_vul_master(state_list)
     df_cvi_indicators = clean_climate_vul_indicators(state_list)
-    merged_cvi_df = pd.merge(df_cvi_master,df_cvi_indicators, how='left', left_on=['geo_id'], right_on=['geo_id']) 
+    merged_cvi_df = pd.merge(df_cvi_master,df_cvi_indicators, how='inner', left_on=['geo_id'], right_on=['geo_id']) 
     merged_cvi_df = merged_cvi_df[['geo_id'] + [col for col in merged_cvi_df.columns if col != 'geo_id']]
+    
     merged_cvi_df.to_csv(f"{merged_cvi_data}.csv", index=False,header=True) #code taken from my PA 4! 
     print(f"The new CSV File '{merged_cvi_data}' was created!") 
 
