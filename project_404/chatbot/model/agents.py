@@ -13,6 +13,7 @@ from jenkspy import jenks_breaks # Create Fisher-Jenks natural breaks for maps
 import colour # Create color scales
 import branca.colormap as cm
 import sqlite3
+import pathlib
 
 from project_404.chatbot.model.json_responses import json_response, VAR_NAMES
 from project_404.chatbot.model.prompt_prefixes import function_agent_prefix
@@ -25,9 +26,13 @@ class agent_functions:
 
     def __init__(self):
         self.tract_shp = self.get_shapefiles().set_index("GEOID")
-        path
-        self.db = "SQL database"
 
+        # Connect to SQL database
+        db_file_path = pathlib.Path(__file__).parent / "../../data_collection/output_data/climate_database.db"
+        self.db_connection = sqlite3.connect(db_file_path)
+
+        self.db_connection.row_factory = sqlite3.Row
+        self.db_cursor = self.db_connection.cursor()
 
     def _get_shapefiles(self):
         states = ["CA", "IL", "TX", "WA", "LA"]
@@ -71,7 +76,6 @@ class agent_functions:
         tables = self.construct_from_statement(json_response_obj)
         conditions = self.construct_where_statement(json_response_obj)
 
-        # Change to actually call from SQL
         # STATUS is the equivalent of saying no function
         # The choice to still give it a function name is for simplicity and consistency with the LLM
         if func_name == "STATUS":
@@ -79,7 +83,8 @@ class agent_functions:
         else:
             query = f"SELECT {func_name}({column}) {tables} WHERE {conditions}"
 
-        pass
+        self.db_connection.execute(query)
+        return self.db_connection.fetchall()
 
     # def request_status_data(self, json_response_obj: json_response) -> str:
     #     """
@@ -110,29 +115,25 @@ class agent_functions:
         query = f"SELECT {reported_variable} {tables} WHERE {conditions} ORDER"\
         f"BY {select_column} LIMIT {k}"
 
-        pass
+        self.db_connection.execute(query)
+        return self.db_connection.fetchall()
 
     def get_map_data(self, json_response_obj: json_response):
         """Get data for map from SQL"""
 
-        location = json_response_obj.parameters["location"]
         select_column = json_response_obj.parameters["select_columns"]
-        color = json_response_obj.parameters["color"]
 
         tables = self.construct_from_statement(json_response_obj)
         conditions = self.construct_where_statement(json_response_obj)
 
         query = f"SELECT geoid, {select_column} {tables} WHERE {conditions}"
 
-        ######################
-        ## pull files from sql
-        ######################
-
-        pass
+        # Inspired by https://stackoverflow.com/questions/36028759/how-to-open-and-convert-sqlite-database-to-pandas-dataframe
+        return pd.read_sql_query(query, self.db_connection)
 
     def request_map(self, json_response_obj: json_response) -> str:
         """
-        Use map from
+        Create map from SQL data
          
         """
         # Used https://www.latlong.net/ to find coordinates
