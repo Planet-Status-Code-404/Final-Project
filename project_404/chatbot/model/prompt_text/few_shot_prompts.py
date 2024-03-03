@@ -12,15 +12,15 @@ The following example:
         {
             "prompt": "What is the average life expectancy in Los Angeles with a population above 20000",
             "function_name": "mean",
-            "parameters": ["LIFEEXP"],
+            "parameters": ["demographics.LIFEEXP"],
             "conditions": [
                 {
-                    "variable_name": "total_population",
+                    "variable_name": "main.totalPop",
                     "restriction": ["> 20000"],
                     "boolean_operator": ""
                 },
                 {
-                    "variable_name": "location",
+                    "variable_name": "city",
                     "restriction": ["== Los Angeles"],
                     "boolean_operator": ""
                 }
@@ -38,7 +38,7 @@ The following example:
         {
             "prompt": "Make me a map of particulate matter in Los Angeles",
             "function_name": "map",
-            "parameters": ["RAW_E_PM25", "", "Los Angeles"],
+            "parameters": ["main.RAW_E_PM25", "", "Los Angeles"],
             "conditions": [
                 {
                     "variable_name": "",
@@ -51,23 +51,23 @@ The following example:
 
     [INST] Here is another example:
 
-    Make me a green-red map of the number of churches in Chicago where life expectancy is greater than 40 or particulate air is higher than 8
+    Make me a green-red map of baseline health in Chicago where life expectancy is greater than 40 or particulate air is higher than 8
 
     Should be converted to [/INST]
 
     "queries" : [
         {
-            "prompt": "Make me a green-red map of the number of churches in Chicago where life expectancy is greater than 40 or particulate air is higher than 8",
+            "prompt": "Make me a green-red map of baseline health in Chicago where life expectancy is greater than 40 or particulate air is higher than 8",
             "function_name": "map",
-            "parameters": ["NUM_CHURCH", "green-red", "Chicago"],
+            "parameters": ["baseline_health", "green-red", "Chicago"],
             "conditions": [
                 {
-                    "variable_name": "LIFEEXP",
+                    "variable_name": "demographics.LIFEEXP",
                     "restriction": ["> 40"],
                     "boolean_operator": ""
                 },
                 {
-                    "variable_name": "RAW_E_PM25",
+                    "variable_name": "main.RAW_E_PM25",
                     "restriction": ["> 8"],
                     "boolean_operator": "OR"
                 }
@@ -85,10 +85,10 @@ The following example:
         {
             "prompt": "What is the percent of english speaking populations in Chicago",
             "function_name": "status",
-            "parameters": ["P_ENGLISH"],
+            "parameters": ["demographics.P_ENGLISH"],
             "conditions": [
                 {
-                    "variable_name": "location",
+                    "variable_name": "city",
                     "restriction": ["== Chicago"],
                     "boolean_operator": ""
                 }

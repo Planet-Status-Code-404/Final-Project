@@ -318,11 +318,9 @@ class response_agent(ollama.Client):
 
     def __init__(self, tunnel_key) -> None:
         self.model_name = "mistral"
-        self.functions = agent_functions()
-
         super().__init__(host = tunnel_key)
 
-    def respons_with_answers(self, answers):
+    def responds_with_answers(self, answers):
         """Take answers from function calling agent and respond to user"""
         prompt_prefix = \
         """
