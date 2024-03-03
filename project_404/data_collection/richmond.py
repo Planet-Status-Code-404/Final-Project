@@ -60,6 +60,7 @@ def matching_tracts(state_list): #this code is taken from gis stack exchange and
 def clean_redlined_with_tract_data(state_list,redlining_tract_csv:str): #combined_tract_redlining:str
     redlining_with_tracts_df = matching_tracts(state_list)
     redlining_with_tracts_df.columns = redlining_with_tracts_df.columns.str.lower().str.replace("geoid","geo_id")
+    redlining_with_tracts_df = redlining_with_tracts_df[['geo_id'] + [col for col in redlining_with_tracts_df.columns if col != 'geo_id']] #https://saturncloud.io/blog/pandas-tips-reorder-columns/
     redlining_with_tracts_df.to_csv(f"{redlining_tract_csv}.csv", index=False, header=True) #taken from my pa4
     print(f"The new CSV file '{redlining_tract_csv} was created!") #do we need this in here or should we take it out?
         
@@ -259,6 +260,7 @@ def clean_fema_data(state_list,fema_data:str):
                     fema_dict[rename_fema_dict[key]]= row[key]
                 fema_list.append(fema_dict)
     final_fema_df = pd.DataFrame(fema_list)
+    final_fema_df = final_fema_df[['geo_id'] + [col for col in final_fema_df.columns if col != 'geo_id']] #https://saturncloud.io/blog/pandas-tips-reorder-columns/
     final_fema_df.to_csv(f"{fema_data}.csv", index=False,header=True) 
     print(f"CSV file '{fema_data}' has been created!")
     
