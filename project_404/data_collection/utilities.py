@@ -39,6 +39,6 @@ def merge_dfs_to_csv(list_of_dfs, name_of_csv):
 
     merged_df = pd.concat(list_of_dfs)
 
-    merged_df.to_csv(f"data_collection/data_files/{name_of_csv}")
+    merged_df.to_csv(f"data_collection/output_data/{name_of_csv}")
 
     return merged_df
