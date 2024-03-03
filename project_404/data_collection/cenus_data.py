@@ -43,12 +43,12 @@ state_code_dictionary = {
 variable_guide_dp = "https://api.census.gov/data/2020/dec/dp/variables.html"
 url_dp = "https://api.census.gov/data/2020/dec/dp?"
 dp_dictionary = {
-    "DP1_0078C": "White Population",
-    "DP1_0079C": "Black or African American Population",
-    "DP1_0080C": "American Indian and Alaskan Native Population",
-    "DP1_0081C": "Asian Population",
-    "DP1_0082C": "Native Hawaiian and Other Pacific Islander Population",
-    "DP1_0083C": "Other Race Population",
+    "DP1_0078C": "white_population",
+    "DP1_0079C": "black_african_american_population",
+    "DP1_0080C": "american_indian_alaskan_native_population",
+    "DP1_0081C": "asian_population",
+    "DP1_0082C": "native_hawaiian_and_other_pacific_islander_population",
+    "DP1_0083C": "Other_race_population",
 }
 params_dp = {
     "get": "NAME,DP1_0078C,DP1_0079C,DP1_0080C,DP1_0081C,DP1_0082C,DP1_0083C",
@@ -86,8 +86,8 @@ dhc_variable_dictionary = {
     "H12A_010N": "renter_occupied_white",
     "H12B_002N": "owner_occupied_black_or_african_american",
     "H12B_010N": "renter_occupied_black_or_african_american",
-    "H12C_002N": "owner_occuppied_american_indian_&_alaska_native",
-    "H12C_010N": "renter_occupied_american_indian_&_alaska_native",
+    "H12C_002N": "owner_occuppied_american_indian_alaska_native",
+    "H12C_010N": "renter_occupied_american_indian_alaska_native",
     "H12D_002N": "owner_occupied_asian",
     "H12D_010N": "renter_occupied_asian",
     "H12E_002N": "owner_occupied_native_hawaiian",
@@ -126,12 +126,12 @@ compiled_dataframe_dhc = pd.concat(compiled_dhc, ignore_index=True)
 
 # Loading Community Resilience Estimates for Counties
 cre_dictionary = {
-    "PRED0_E": "Estimated number of individuals with zero components of social vulnerability",
-    "PRED0_PE": "Rate of individuals with zero components of social vulnerability",
-    "PRED12_E": "Estimated number of individuals with one-two components of social vulnerability",
-    "PRED12_PE": "Rate of individuals with one-two components of social vulnerability",
-    "PRED3_E": "Estimated number of individuals with three or more components of social vulnerability",
-    "PRED3_PE": "Rate of individuals with three or more components of social vulnerability",
+    "PRED0_E": "estimated_number_of_individuals_with_zero_components_of_social_vulnerability",
+    "PRED0_PE": "rate_of_individuals_with_zero_components_of_social_vulnerability",
+    "PRED12_E": "estimated_number_of_individuals_with_one_two_components_of_social_vulnerability",
+    "PRED12_PE": "rate_of_individuals_with_one_two_components_of_social_vulnerability",
+    "PRED3_E": "estimated_number_of_individuals_with_three_or_more_components_of_social_vulnerability",
+    "PRED3_PE": "rate_of_individuals_with_three_or_more_components_of_social_vulnerability",
 }
 params_cre = {
     "get": "NAME,PRED0_E,PRED0_PE,PRED12_E,PRED12_PE,PRED3_E,PRED3_PE",
@@ -166,9 +166,9 @@ compiled_dataframe_cre = pd.concat(cre_compiled_dfs, ignore_index=True)
 
 
 # Adding the Census_Tract_ID
-def add_census_tract_ID(dataframe, state_column, county_column, tract_column):
+def add_geo_id(dataframe, state_column, county_column, tract_column):
     """
-    Adds a new column 'Census_Tract_ID' to the DataFrame by concatenating state,
+    Adds a new column 'geo_id' to the DataFrame by concatenating state,
     county, and tract codes.
 
     Parameters:
@@ -185,26 +185,26 @@ def add_census_tract_ID(dataframe, state_column, county_column, tract_column):
     dataframe[county_column] = dataframe[county_column].astype(str)
     dataframe[tract_column] = dataframe[tract_column].astype(str)
 
-    # Create new column 'Census_Tract_ID' containing concatenated values
-    dataframe["Census_Tract_ID"] = (
+    # Create new column 'geo_id' containing concatenated values
+    dataframe["geo_id"] = (
         dataframe[state_column] + dataframe[county_column] + dataframe[tract_column]
     )
     return dataframe
 
 
-compiled_dataframe_dp = add_census_tract_ID(
+compiled_dataframe_dp = add_geo_id(
     compiled_dataframe_dp,
     "state",
     "county",
     "tract",
 )
-compiled_dataframe_dhc = add_census_tract_ID(
+compiled_dataframe_dhc = add_geo_id(
     compiled_dataframe_dhc,
     "state",
     "county",
     "tract",
 )
-compiled_dataframe_cre = add_census_tract_ID(
+compiled_dataframe_cre = add_geo_id(
     compiled_dataframe_cre,
     "state",
     "county",
@@ -217,14 +217,14 @@ compiled_dataframe_cre = add_census_tract_ID(
 merged_df = pd.merge(
     compiled_dataframe_dp,
     compiled_dataframe_dhc,
-    on=["Census_Tract_ID", "NAME", "state", "county", "tract"],
+    on=["geo_id", "NAME", "state", "county", "tract"],
     how="outer",
 )
 # Merge the third DataFrame with the merged result
 final_merged_df = pd.merge(
     merged_df,
     compiled_dataframe_cre,
-    on=["Census_Tract_ID", "NAME", "state", "county", "tract"],
+    on=["geo_id", "NAME", "state", "county", "tract"],
     how="outer",
 )
 final_merged_df[["Census_Tract", "County_Name", "State_Name"]] = final_merged_df[
@@ -238,7 +238,7 @@ final_merged_df["County_Name"] = final_merged_df["County_Name"].str.strip()
 
 # Rearranging Columns
 desired_columns = [
-    "Census_Tract_ID",
+    "geo_id",
     "state",
     "State_Name",
     "county",
@@ -250,13 +250,4 @@ remaining_columns = [
 ]
 new_order = desired_columns + remaining_columns
 final_merged_df = final_merged_df[new_order]
-final_merged_df.to_csv("data_collection/data_files/census_data.csv", index=False)
-
-
-# WRITING TO SQL DATABASE
-def creating_sql_database(data, database_name, table_name):
-    connection = sqlite3.connect(database_name)
-    data.to_sql(table_name, connection, if_exists="replace", index=False)
-
-    connection.commit()
-    connection.close()
+final_merged_df.to_csv("data_collection/output_data/census_data.csv", index=False)
