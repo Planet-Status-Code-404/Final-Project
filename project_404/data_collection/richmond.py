@@ -147,11 +147,12 @@ def clean_climate_vul_indicators(state_list):
     return final_cvi_df
     
 
-def combine_CVI_df(merged_cvi_data:str): 
+def combine_cvi_df(merged_cvi_data:str): 
     state_list = ["LA", "IL", "TX", "WA","CA"]
     df_cvi_master = clean_climate_vul_master(state_list)
     df_cvi_indicators = clean_climate_vul_indicators(state_list)
     merged_cvi_df = pd.merge(df_cvi_master,df_cvi_indicators, how='left', left_on=['geo_id'], right_on=['geo_id']) 
+    merged_cvi_df = merged_cvi_df[['geo_id'] + [col for col in merged_cvi_df.columns if col != 'geo_id']]
     merged_cvi_df.to_csv(f"{merged_cvi_data}.csv", index=False,header=True) #code taken from my PA 4! 
     print(f"The new CSV File '{merged_cvi_data}' was created!") 
 
