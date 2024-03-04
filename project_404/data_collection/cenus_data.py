@@ -1,14 +1,7 @@
-import os
 import requests
 import json
 import pandas as pd
-
-# Need to use provided API key to pull data from the census.gov site
-api_key = ""
-
-# Obtained API key from local environment, kindly comment the following and manually
-# input the api key provided offline to run the file
-api_key = os.environ.get("CENSUS_API_KEY")
+from pathlib import Path
 
 
 def load_dataframe(response):
@@ -51,7 +44,6 @@ dp_dictionary = {
 params_dp = {
     "get": "NAME,DP1_0078C,DP1_0079C,DP1_0080C,DP1_0081C,DP1_0082C,DP1_0083C",
     "for": "TRACT:*",
-    "key": api_key,
 }
 dp_dataframes = {}
 for state, state_code in state_code_dictionary.items():
@@ -95,7 +87,6 @@ dhc_variable_dictionary = {
 params_dhc = {
     "get": "NAME,H12A_002N,H12A_010N,H12B_002N,H12B_010N,H12C_002N,H12C_010N,H12D_002N,H12D_010N,H12E_002N,H12E_010N,H12F_002N,H12F_010N",
     "for": "TRACT:*",
-    "key": api_key,
 }
 ddhc_df_dataframes = {}
 for state, state_code in state_code_dictionary.items():
@@ -132,7 +123,6 @@ cre_dictionary = {
 params_cre = {
     "get": "NAME,PRED0_E,PRED0_PE,PRED12_E,PRED12_PE,PRED3_E,PRED3_PE",
     "for": "TRACT:*",
-    "key": api_key,
 }
 url = "https://api.census.gov/data/2022/cre?"
 
@@ -246,4 +236,8 @@ remaining_columns = [
 ]
 new_order = desired_columns + remaining_columns
 final_merged_df = census_dataframe[new_order]
-final_merged_df.to_csv("data_collection/output_data/census_data.csv", index=False)
+
+# Exporting dataframe to csv file
+output_path = Path(__file__).resolve().parent / "output_data"
+output_path.mkdir(parents=True, exist_ok=True)
+final_merged_df.to_csv(output_path / "census_data.csv", index=False)
