@@ -1,10 +1,9 @@
 import os
 import requests
 import json
-import sqlite3
 import pandas as pd
 
-# Need to use provided API key offline
+# Need to use provided API key to pull data from the census.gov site
 api_key = ""
 
 # Obtained API key from local environment, kindly comment the following and manually
@@ -38,8 +37,7 @@ state_code_dictionary = {
     "California": "06",
 }
 
-## 2020 Decennial Census
-# Demographic Characteristics(DP): Distribution of Race
+## DATASET 1: Demographic Characteristics(DP)- Population Distribution Race Wise
 variable_guide_dp = "https://api.census.gov/data/2020/dec/dp/variables.html"
 url_dp = "https://api.census.gov/data/2020/dec/dp?"
 dp_dictionary = {
@@ -76,8 +74,7 @@ for state, df in dp_dataframes.items():
 
 compiled_dataframe_dp = pd.concat(compiled_dp, ignore_index=True)
 
-################################################################################
-
+## DATASET 2
 # Demographic and Housing Characteristics(DHC): Race and Housing Characteristics
 variable_guide_dhc = "https://api.census.gov/data/2020/dec/dhc/variables.html"
 url_dhc = "https://api.census.gov/data/2020/dec/dhc?"
@@ -122,8 +119,7 @@ for state, df in ddhc_df_dataframes.items():
 
 compiled_dataframe_dhc = pd.concat(compiled_dhc, ignore_index=True)
 
-################################################################################
-
+## DATASET 3: Community Resilience Estimates
 # Loading Community Resilience Estimates for Counties
 cre_dictionary = {
     "PRED0_E": "estimated_number_of_individuals_with_zero_components_of_social_vulnerability",
@@ -165,6 +161,7 @@ for state, df in cre_dataframes.items():
 compiled_dataframe_cre = pd.concat(cre_compiled_dfs, ignore_index=True)
 
 
+## Data Cleaning and Appending to Dataframe
 # Adding the Census_Tract_ID
 def add_geo_id(dataframe, state_column, county_column, tract_column):
     """
@@ -211,30 +208,29 @@ compiled_dataframe_cre = add_geo_id(
     "tract",
 )
 
-###############################################################################
-
+# Merging Dataframes and writing to the CSV file
 # Merge the first two DataFrames
-merged_df = pd.merge(
+dataset_one_and_two = pd.merge(
     compiled_dataframe_dp,
     compiled_dataframe_dhc,
     on=["geo_id", "NAME", "state", "county", "tract"],
     how="outer",
 )
 # Merge the third DataFrame with the merged result
-final_merged_df = pd.merge(
-    merged_df,
+census_dataframe = pd.merge(
+    dataset_one_and_two,
     compiled_dataframe_cre,
     on=["geo_id", "NAME", "state", "county", "tract"],
     how="outer",
 )
-final_merged_df[["Census_Tract", "County_Name", "State_Name"]] = final_merged_df[
+census_dataframe[["Census_Tract", "County_Name", "State_Name"]] = census_dataframe[
     "NAME"
 ].str.split("; ", expand=True)
-final_merged_df.drop(columns=["Census_Tract", "NAME"], inplace=True)
+census_dataframe.drop(columns=["Census_Tract", "NAME"], inplace=True)
 
 # Remove leading and trailing whitespaces
-final_merged_df["State_Name"] = final_merged_df["State_Name"].str.strip()
-final_merged_df["County_Name"] = final_merged_df["County_Name"].str.strip()
+census_dataframe["State_Name"] = census_dataframe["State_Name"].str.strip()
+census_dataframe["County_Name"] = census_dataframe["County_Name"].str.strip()
 
 # Rearranging Columns
 desired_columns = [
@@ -246,8 +242,8 @@ desired_columns = [
     "tract",
 ]
 remaining_columns = [
-    col for col in final_merged_df.columns if col not in desired_columns
+    col for col in census_dataframe.columns if col not in desired_columns
 ]
 new_order = desired_columns + remaining_columns
-final_merged_df = final_merged_df[new_order]
+final_merged_df = census_dataframe[new_order]
 final_merged_df.to_csv("data_collection/output_data/census_data.csv", index=False)

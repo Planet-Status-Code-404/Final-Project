@@ -42,3 +42,42 @@ def merge_dfs_to_csv(list_of_dfs, name_of_csv):
     merged_df.to_csv(f"data_collection/output_data/{name_of_csv}")
 
     return merged_df
+
+def clean_epa(filename):
+    """
+    Cleans redundant EPA EJ DF columns we do not want.
+
+    Parameters: filename, string
+
+    Returns: None, updates the EPA data file in place
+    """
+    epa = pd.read_csv(f"./output_data/{filename}")
+    epa.drop(['demographics.P_NHWHITE', 'demographics.P_NHBLACK',
+            "demographics.P_NHASIAN","demographics.P_HISP",
+            "demographics.P_NHAMERIND","demographics.P_NHHAWPAC",
+            "demographics.P_NHOTHER_RACE","demographics.P_NHTWOMORE"], axis=1)
+
+    # List of columns to keep
+    columns_to_keep = [
+        "demographics.P_ENGLISH", "demographics.P_NON_ENGLISH", "demographics.P_AGE_LT5",
+        "demographics.P_AGE_LT18", "demographics.P_AGE_GT17", "demographics.P_AGE_GT64",
+        "demographics.P_HLI_OTHER_LI", "demographics.P_LOWINC", "demographics.PCT_MINORITY",
+        "demographics.P_EDU_LTHS", "demographics.P_LIMITED_ENG_HH", "demographics.P_EMP_STAT_UNEMPLOYED",
+        "demographics.P_DISABILITY", "demographics.P_MALES", "demographics.P_FEMALES",
+        "demographics.LIFEEXP", "demographics.PER_CAP_INC", "demographics.HSHOLDS",
+        "demographics.P_OWN_OCCUPIED", "main.RAW_D_PEOPCOLOR", "main.RAW_D_INCOME",
+        "main.RAW_D_UNDER5", "main.RAW_D_OVER64", "main.RAW_D_UNEMPLOYED", "main.RAW_D_LIFEEXP",
+        "main.RAW_E_DIESEL", "main.RAW_E_CANCER", "main.RAW_E_TRAFFIC", "main.RAW_E_O3",
+        "main.RAW_E_PM25", "main.RAW_E_RSEI_AIR", "main.stateAbbr", "main.stateName",
+        "main.totalPop", "main.NUM_AIRPOLL", "main.NUM_BROWNFIELD", "main.NUM_HOSPITAL",
+        "main.statLayerCount", "main.statLayerZeroPopCount", "main.weightLayerCount",
+        "main.distance", "main.unit", "geo_id", "main.areatype", "main.statlevel",
+        "main.placename", "extras.RAW_HI_LIFEEXPPCT", "extras.RAW_HI_ASTHMA",
+        "extras.RAW_HI_DISABILITYPCT", "extras.RAW_CG_NOHINCPCT", "extras.RAW_CI_FLOOD",
+        "extras.RAW_CI_FLOOD30", "extras.RAW_CI_FIRE", "extras.RAW_CI_FIRE30"
+    ]
+
+    # Assuming 'df' is your original DataFrame
+    epa = epa.loc[:, columns_to_keep]
+
+    epa.to_csv(f"./output_data/{filename}")
