@@ -32,23 +32,26 @@ def run():
 
     if sys.argv[1] == "data_collection":
         print("Start data collection process? (y/n)")
-        response = input(">>> ")
+        response = input("\n>>> ")
 
         if response in ["y", "yes", "Y", "Yes"]:
-           data_collection()
+            data_collection()
         else:
             sys.exit()
 
     if sys.argv[1] == "climate_bot":
         print("Start climate chatbot? (y/n)")
-        response = input(">>> ")
+        response = input("\n>>> ")
 
         if response in ["y", "yes", "Y", "Yes"]:
-           print("Please input Ngrok tunnel key")
-           print("The key should mostly resemble <https://####-##-###-###-##.ngrok-free.app>")
-           ngrok_tunnel_key = input(">>> ")
-
-           start_chatbot(ngrok_tunnel_key)
+            print("Please input Ngrok tunnel key")
+            print("The key should mostly resemble <https://####-##-###-###-##.ngrok-free.app>")
+            ngrok_tunnel_key = input("\n>>> ")
+            
+            if ngrok_tunnel_key in ["q","quit", "quit()"]:
+                sys.exit()
+            else:
+                start_chatbot(ngrok_tunnel_key)
 
         else:
             sys.exit()
