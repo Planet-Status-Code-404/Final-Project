@@ -17,7 +17,7 @@ def get_variable_names():
     var_names = {}
 
     for table_name in data_tracker:
-        if table_name not in ["merged_cvi_data"]:
+        if table_name not in []: #["merged_cvi_data", "EPA_Sample_Data", "final_redlining_tract_csv"]:
             for row in data_tracker[table_name].itertuples():
                 # ignore rows that have missing variable names
                 try:

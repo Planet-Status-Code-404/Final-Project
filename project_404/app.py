@@ -18,7 +18,7 @@ def start_chatbot(ngrok_tunnel_key):
     while True:
         prompt = input("\n>>> ")
 
-        if prompt in ["quit", "quit()"]:
+        if prompt in ["q","quit", "quit()"]:
             break
         
         answers = function_calling_bot.call_functions(prompt)
@@ -27,7 +27,7 @@ def start_chatbot(ngrok_tunnel_key):
 
 def run():
     if len(sys.argv) != 2:
-        print(f"Usage: python3 project_404 <data_collection> OR <climate_bot>")
+        print(f"Usage: python3 -m project_404 <data_collection> OR <climate_bot>")
         sys.exit()
 
     if sys.argv[1] == "data_collection":
