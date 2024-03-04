@@ -15,6 +15,7 @@ import branca.colormap as cm
 import sqlite3
 import pathlib
 import re
+import time
 
 from project_404.chatbot.model.json_responses import json_response, VAR_NAMES
 from project_404.chatbot.model.prompt_prefixes import function_agent_prefix
@@ -156,14 +157,14 @@ class agent_functions:
             map = folium.Map(
                 location = location_coords.get(location),
                 tiles="cartodb positron",
-                zoom_start=3
+                zoom_start=10
             )
         else:
             # Default to US
             map = folium.Map(
                 location = [48, -102],
                 tiles="cartodb positron",
-                zoom_start=3
+                zoom_start=4
             )
 
         column_name = re.findall(r"\.\[([\w_]+)\]", select_column)[0]
@@ -179,6 +180,7 @@ class agent_functions:
             color_scale = list(
                 colour.Color("#a7a7a8").range_to(colour.Color(color), 6)
             )
+            color_name = color
 
         map_colors = cm.LinearColormap(
             # Hex code sometimes is reduced to something unrecognizable to cm (ex. red's hex code)
@@ -262,13 +264,15 @@ class function_calling_agent(ollama.Client):
         """
         json_output = self.generate(
             model=self.model_name,
-            prompt=f"{self.prompt_prefix.prompt_prefix}\n{prompt}",
-            context=self.context,
+            prompt=f"{self.prompt_prefix.prompt_prefix}\n{prompt}</s>"
         )
-        print(json_output["response"])
-        self.context = json_output["context"]
+        # print(json_output["response"].replace("\\", "").strip().replace("\n", ""))
+        # print(json.loads(json_output["response"].replace("\\", "").strip().replace("\n", "")))
+
+        # self.context = json_output["context"]
+        print(json_output["response"].replace("\\", "").strip().replace("\n", ""))
         
-        return json.loads(
+        return json_repair.loads(
             (
                 "{" + 
                 json_output["response"].replace("\\", "").strip().replace("\n", "") + 
@@ -282,11 +286,18 @@ class function_calling_agent(ollama.Client):
 
         """
         answers = []
+        try:
+            all_responses = self.text_to_json(prompt)
+        except:
+            answers.append("Your query could not be parsed. Sorry friend.")
+            return "\n\n".join(answers)
 
-        for i, json_text in enumerate(self.text_to_json(prompt)):
+        for i, json_text in enumerate(all_responses):
             print(json_text)
+            json_response_obj = json_response(json_text)
             try:
                 json_response_obj = json_response(json_text)
+                print("Succesfully converted to json response")
             except:
                 answers.append(f"The request, '{json_text['prompt']}', could not be met")
                 continue

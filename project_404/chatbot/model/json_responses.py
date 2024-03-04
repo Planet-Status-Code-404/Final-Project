@@ -247,11 +247,16 @@ class json_response:
     # Checked documentation for how to use classes as dictionary keys (__hash__)
     # https://docs.python.org/3/reference/datamodel.html#object.__hash__
     def __hash__(self) -> int:
-        return hash(" ".join(
-            [self.func_name] + 
-            list(self.parameters.keys()) + 
-            list(self.parameters.values()) +
-            list(self.conditions.keys()) +
+        hash_key = [self.func_name] + \
+        list(self.parameters.keys()) + \
+        list(self.parameters.values())
+
+        if self.conditions:
+            hash_key + \
+            list(self.conditions.keys()) + \
             list(self.conditions.values())
+
+        return hash(" ".join(
+                hash_key
             )
         )
