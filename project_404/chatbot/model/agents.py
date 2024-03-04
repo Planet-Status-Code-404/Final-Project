@@ -214,7 +214,8 @@ class agent_functions:
         # Add legend
         map_colors.add_to(map)
 
-        output_map_file = f'{column_name}_{color_name}_{location}.html'
+        file_path = pathlib.Path(__file__).parent / "../maps"
+        output_map_file = f'{file_path}/{column_name}_{color_name}_{location}.html'
         map.save(output_map_file)
 
         return output_map_file
