@@ -1,15 +1,36 @@
 import sys
 from project_404.data_collection import census_data
+from project_404.data_collection import richmond
+from project_404.data_collection import utilities
 from project_404.chatbot.model.agents import function_calling_agent, response_agent
 
 
-def data_collection():
+def data_collection(state_list):
     """
     This function downloads and/or pre-process the dataset along with performing
     cleaning operations and returns the csv files in the data_collection/output_data folder.
+    *For the state_list parameter please use: ["LA", "IL", "TX", "WA", "CA"]*
     """
     census_data.process_census_data_to_csv()
+    richmond.clean_redlined_with_tract_data(state_list)
+    richmond.combine_cvi_df()
 
+def data_collection_fema(state_list):
+    """
+    This function downloads and/or pre-process the dataset along with performing
+    cleaning operations and returns the csv files in the data_collection/output_data folder
+    for the FEMA data only!
+    *For the state_list parameter please use: ["Louisiana", "Illinois", "Texas", "Washington","California"]*
+    """
+    richmond.clean_fema_data(state_list)
+
+def data_collection_epa(filename:str):
+     """
+    This function downloads and/or pre-process the dataset along with performing
+    cleaning operations and returns the csv files in the data_collection/output_data folder
+        for the EPA data only!
+    """
+utilities.clean_epa('filename')
 
 def start_chatbot(ngrok_tunnel_key):
     """
