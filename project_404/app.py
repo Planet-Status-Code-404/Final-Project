@@ -1,16 +1,22 @@
 import sys
+from project_404.data_collection import census_data
 from project_404.chatbot.model.agents import function_calling_agent, response_agent
 
+
 def data_collection():
-    pass
+    """
+    This function downloads and/or pre-process the dataset along with performing
+    cleaning operations and returns the csv files in the data_collection/output_data folder.
+    """
+    census_data.process_census_data_to_csv()
 
 
 def start_chatbot(ngrok_tunnel_key):
     """
     This function uses a 3-stage process whereby a user can input natural
-    language that is converted into python function parameters, and 
+    language that is converted into python function parameters, and
     then is summarized back to the user.
-    
+
     """
     function_calling_bot = function_calling_agent(ngrok_tunnel_key)
     response_bot = response_agent(ngrok_tunnel_key)
@@ -18,9 +24,9 @@ def start_chatbot(ngrok_tunnel_key):
     while True:
         prompt = input("\n>>> ")
 
-        if prompt in ["q","quit", "quit()"]:
+        if prompt in ["q", "quit", "quit()"]:
             break
-        
+
         answers = function_calling_bot.call_functions(prompt)
         response_bot.responds_with_answers(answers)
 
@@ -35,7 +41,7 @@ def run():
         response = input(">>> ")
 
         if response in ["y", "yes", "Y", "Yes"]:
-           data_collection()
+            data_collection()
         else:
             sys.exit()
 
@@ -44,12 +50,13 @@ def run():
         response = input(">>> ")
 
         if response in ["y", "yes", "Y", "Yes"]:
-           print("Please input Ngrok tunnel key")
-           print("The key should mostly resemble <https://####-##-###-###-##.ngrok-free.app>")
-           ngrok_tunnel_key = input(">>> ")
+            print("Please input Ngrok tunnel key")
+            print(
+                "The key should mostly resemble <https://####-##-###-###-##.ngrok-free.app>"
+            )
+            ngrok_tunnel_key = input(">>> ")
 
-           start_chatbot(ngrok_tunnel_key)
+            start_chatbot(ngrok_tunnel_key)
 
         else:
             sys.exit()
-        
