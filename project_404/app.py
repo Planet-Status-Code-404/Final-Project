@@ -1,6 +1,7 @@
 import sys
 from project_404.data_collection import census_data
 from project_404.data_collection import richmond
+from project_404.data_collection import epa
 from project_404.data_collection import utilities
 from project_404.chatbot.model.agents import function_calling_agent, response_agent
 
@@ -24,13 +25,40 @@ def data_collection_fema(state_list):
     """
     richmond.clean_fema_data(state_list)
 
-def data_collection_epa(filename:str):
+def data_collection_epa(cities: list, max_rows, visualization: bool, columns_to_viz: list):
      """
     This function downloads and/or pre-process the dataset along with performing
     cleaning operations and returns the csv files in the data_collection/output_data folder
         for the EPA data only!
+
+        Parameters:
+        city: enter only list combination of ["Chicago", "Dallas", "New_Orleans", "Houston", "Los_Angeles"]
+                Capitalization is important, it is case sensitive
+        max_rows: Choose any positive number but expect 2-10 seconds for each row API call. This is created for you 
+                    to be able to try a sample without waiting for the entire function to run.
+        visualization: if you want exploratory visualization mark as True and give a list of columns to visualize
+        columns_to_viz: list of column names, suggested to be between 1-3, see Readme file for column names.
+
+        Output: creates a "EPA_Data.csv" in data_collection/output_data
     """
-utilities.clean_epa('filename')
+    #  
+     list_of_dfs = []
+     for city in cities:
+        if city.lower() == 'chicago':
+            df = epa.collect_epa_data_from(city, max_rows, f"{city}_Tract_ID.csv")
+            df = utilities.clean_epa(df)
+            list_of_dfs.append(df)
+        else:
+            df = epa.collect_epa_data_from(city, max_rows, f"{city}_Tract_ID.xlsx")
+            df = utilities.clean_epa(df)
+            list_of_dfs.append(df)
+        if visualization:
+         epa.visualize_data(df, columns_to_viz)
+   
+
+     utilities.merge_dfs_to_csv(list_of_dfs, "EPA_Data.csv")
+     
+     
 
 def start_chatbot(ngrok_tunnel_key):
     """

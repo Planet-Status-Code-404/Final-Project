@@ -52,9 +52,9 @@ def collect_epa_data_from(city, max_rows, data_file):
     print(f"Success: {success_count}, Failures: {fail_count}")
     return data
 
-def visualize_data(df):
+def visualize_data(df: pd.DataFrame, columns: list):
     """
-    Generates a pairplot from the given DataFrame.
+    Generates a pairplot from the given DataFrame for preliminary understanding of the data. 
 
     Parameters:
     - df: DataFrame to visualize.
@@ -62,25 +62,17 @@ def visualize_data(df):
     Returns:
     - None.
     """
-    #Visualizing Data
-
-    #If you don't already have seaborn
+    # If you don't already have seaborn
     # %pip install --upgrade seaborn
     # %pip install --upgrade numpy
 
-    # import seaborn as sns 
-    # import pandas as pd
 
-    #Setting the theme
-    # sns.set(style='darkgrid', palette='deep', font='sans-serif', font_scale=1, color_codes=True, rc=None)
+    # Setting the theme
+    sns.set_theme(style='darkgrid', palette='deep', font='sans-serif', font_scale=1, color_codes=True, rc=None)
 
-    #Convert to numeric
-    # dallas_data[["demographics.P_NHBLACK", "main.NUM_AIRPOLL", "main.NUM_TRI"]] = dallas_data[["demographics.P_NHBLACK", "main.NUM_AIRPOLL", "main.NUM_TRI"]].apply(pd.to_numeric)
+    # Convert to numeric
+    df[columns] = df[columns].apply(pd.to_numeric)
 
+    sns.pairplot(df, vars =columns,height=3)
+    
 
-    # sns.pairplot(dallas_data, vars =["demographics.P_NHBLACK", "main.NUM_AIRPOLL", "main.NUM_TRI"],height=3)
-    # sns.scatterplot(x="demographics.P_NHBLACK", y="extras.RAW_CI_FLOOD", data= dallas_data)
-
-
-    #Outliers problematic
-    pass
