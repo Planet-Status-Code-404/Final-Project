@@ -18,12 +18,12 @@ def collect_epa_data_from(city, max_rows, data_file):
 
     #Only Chicago fips codes are in a cvs file and formatted differently.
     if city.lower() == 'chicago':
-        fips_codes_df = pd.read_csv(f"data_collection/data_files/{data_file}")
+        fips_codes_df = pd.read_csv(f"data_collection/source_data/{data_file}")
         fips_codes_df['Processed'] = fips_codes_df.iloc[:, 0].apply(lambda x: str(int(x * 100)).ljust(6, '0'))
         base_fips = "17031"
         fips_codes = {base_fips + processed_id for processed_id in fips_codes_df['Processed']}
     else:
-        fips_codes_df = pd.read_excel(f"data_collection/data_files/{data_file}", header=None, engine='openpyxl')
+        fips_codes_df = pd.read_excel(f"data_collection/source_data/{data_file}", header=None, engine='openpyxl')
         fips_codes = set(fips_codes_df[0].astype(str).str.pad(width=11, side='left', fillchar='0'))
     
     # DataFrame to store all results

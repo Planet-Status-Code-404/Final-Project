@@ -23,6 +23,7 @@ openpyxl = "^3.1.2"
 python-dotenv = "^0.19.1"
 jenkspy = "^0.4.0"
 colour = "^0.1.5"
+fix-busted-json = "^0.0.17"
 
 
 [build-system]

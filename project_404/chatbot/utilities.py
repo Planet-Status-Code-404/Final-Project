@@ -17,9 +17,14 @@ def get_variable_names():
     var_names = {}
 
     for table_name in data_tracker:
-        for row in data_tracker[table_name].itertuples():
-            var = getattr(row, "JSON_Variable").lower()
-            description = getattr(row, "Description")
-            var_names[var] = [table_name, description]
+        if table_name not in []: #["merged_cvi_data", "EPA_Sample_Data", "final_redlining_tract_csv"]:
+            for row in data_tracker[table_name].itertuples():
+                # ignore rows that have missing variable names
+                try:
+                    var = getattr(row, "JSON_Variable").lower().replace(",", "")
+                except:
+                    continue
+                description = getattr(row, "Description")
+                var_names[var] = [table_name.lower().replace(" ","_"), description]
 
     return var_names

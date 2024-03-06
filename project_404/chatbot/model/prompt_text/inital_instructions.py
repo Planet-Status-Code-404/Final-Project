@@ -12,25 +12,25 @@ You can call two types of functions, "simple functions" and "complex functions".
 The output for simple functions should be JSON format and follow this schema:
 "queries" : [
     {   
-        "prompt": 'prompt_text',
+        "prompt": "prompt_text",
         "function_name": {function},
         "parameters": [{parameters}],
         "conditions": [
             {
                 "variable_name": {variable_name},
-                "restriction": [{restriction}]
+                "restriction": [{restriction}],
                 "boolean_operator": "{boolean_operator}"
             }
         ]
     },
     {
-        "prompt": 'prompt_text',
+        "prompt": "prompt_text",
         "function_name": {function},
         "parameters": [{parameters}],
         "conditions": [
             {
                 "variable_name": {variable_name},
-                "restriction": [{restriction}]
+                "restriction": [{restriction}],
                 "boolean_operator": "{boolean_operator}"
             }
         ]
@@ -42,7 +42,7 @@ Below is a list of the "simple functions" to assign to "function_name" and their
     "count": counts something across a dataset
     "max": finds the maximum value for a variable
     "min": finds the minimum value for a variable
-    "mean": take the average or mean
+    "avg": take the average or mean
     "median": find the 50th percentile or median value in a variable
     "status": the state of a variable. Don't apply any conduct any operations on it
     
@@ -56,13 +56,13 @@ The "complex functions" list is below along with their descriptions. Their outpu
 
     "queries" : [
         {
-            "prompt": 'prompt_text',
+            "prompt": "prompt_text",
             "function_name": "find_top_k",
             "parameters": ["k", "select_column", "reported_variable"],
             "conditions": [
                 {
                     "variable_name": {variable_name},
-                    "restriction": [{restriction}]
+                    "restriction": [{restriction}],
                     "boolean_operator": "{boolean_operator}"
                 }
             ]
@@ -78,13 +78,13 @@ The "complex functions" list is below along with their descriptions. Their outpu
 
         "queries" : [
             {   
-                "prompt": 'prompt_text',
+                "prompt": "prompt_text",
                 "function_name": "map",
                 "parameters": ["select_column", "color", "location"],
                 "conditions": [
                     {
                         "variable_name": {variable_name},
-                        "restriction": [{restriction}]
+                        "restriction": [{restriction}],
                         "combine_conditions": "{boolean_operator}"
                     }
                 ]

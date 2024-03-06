@@ -1,9 +1,10 @@
 import sqlite3
 import os
 import csv
+import pathlib
 
-db_file_path = "output_data/climate_database.db"
-csv_directory_path = "output_data"
+db_file_path = pathlib.Path(__file__).parent / "output_data/climate_database.db"
+csv_directory_path = pathlib.Path(__file__).parent / "output_data"
 
 
 def insert_tables_to_database(csv_directory_path, db_file_path):
@@ -25,7 +26,7 @@ def insert_tables_to_database(csv_directory_path, db_file_path):
     cursor = connection.cursor()
 
     for root, _, files in os.walk(csv_directory_path):
-        for file in files[:5]:
+        for file in files:
             if file.endswith(".csv"):
                 csv_file_path = os.path.join(root, file)
                 table_name = os.path.splitext(file)[0]
@@ -55,7 +56,6 @@ def insert_tables_to_database(csv_directory_path, db_file_path):
                     table_creation_sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({primary_key_column} INTEGER PRIMARY KEY, {' ,'.join(remaining_columns)})"
 
                     cursor.execute(table_creation_sql)
-                    print(f"Table '{table_name}' created successfully.")
 
                     # Insert data into the table
                     for row in csv_reader:

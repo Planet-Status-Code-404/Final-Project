@@ -1,6 +1,6 @@
-from chatbot.model.utilities import get_variable_names
-from chatbot.model.prompt_text.inital_instructions import FUNCTION_AGENT_INITIAL_INSTRUCTIONS
-from chatbot.model.prompt_text.few_shot_prompts import FUNCTION_AGENT_FEW_SHOT_PROMPTS
+from project_404.chatbot.utilities import get_variable_names
+from project_404.chatbot.model.prompt_text.inital_instructions import FUNCTION_AGENT_INITIAL_INSTRUCTIONS
+from project_404.chatbot.model.prompt_text.few_shot_prompts import FUNCTION_AGENT_FEW_SHOT_PROMPTS
 
 
 class function_agent_prefix:
@@ -53,13 +53,12 @@ class function_agent_prefix:
         return (
             f"{self.inital_instructions}\n" +
             "When choosing a value for {parameters}, {variable_name}, 'select_column', or 'reported_variable' " +
-            "the availale values and their descriptions are below. ONLY choose among these variables:\n"
+            "the availale values and their descriptions are below. ONLY choose among these variables, DO NOT make up variables:\n"
             f"{self.var_names}" +
             f"{self.conditions}\n" +
             "'conditions' are ways that the user may want to restrict the data. " +
             "A condition requires a {variable_name} in the dataset and a way to filter it." +
-            f"{self.few_shot_prompts}\n" +
-            "</s>"
+            f"{self.few_shot_prompts}\n"
         )
 
 

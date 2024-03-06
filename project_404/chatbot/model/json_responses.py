@@ -4,7 +4,7 @@ import re
 
 # Dictionary to define the available functions and whether they are simple or complex
 FUNCTIONS = {
-    "simple": {"SUM", "COUNT", "MAX", "MIN", "MEAN", "MEDIAN", 
+    "simple": {"SUM", "COUNT", "MAX", "MIN", "AVG", "MEDIAN", 
                "STATUS",}, # What is the state of some parameter with or without some condition
 
     "complex": {
@@ -38,15 +38,18 @@ class json_response:
 
     def __init__(self, json_object: str):
         
-        self.prompt_text = json_object["prompt_text"].upper()
+        self.prompt_text = json_object["prompt"].upper()
         self.func_name = json_object["function_name"].upper()
         
         self.type = self._set_type()
         self.errors = []
 
-        self.set_parameters(json_object)
+        try:
+            self.set_parameters(json_object)
+        except:
+            raise NameError("paramter(s) set incorrectly or not found")
+        
         self.set_conditions(json_object)
-
         self.set_SQL_tables_list()
 
     def is_available_function(self):
@@ -105,7 +108,7 @@ class json_response:
             # Variable to be mapped has not been specified
             return ("invalid function format", "MAP")
         
-        param_dict = {"select_column": f"{VAR_NAMES[raw[0]]}.{raw[0]}"}
+        param_dict = {"select_column": f"[{VAR_NAMES[raw[0]]}].[{raw[0]}]"}
 
         for p in raw[1:]:
             if self.valid_color_for_map(p):
@@ -128,10 +131,10 @@ class json_response:
         # Simple
         raw_params = [param.lower() for param in json_object["parameters"]]
         if self.type == "simple":
-            self.parameters = {"column": raw_params[0]}
+            self.parameters = {"column": f"[{VAR_NAMES[raw_params[0]]}].[{raw_params[0]}]"}
 
         # Top k
-        if self.func_name == "FIND_TOP_K":
+        elif self.func_name == "FIND_TOP_K":
             output = self._parse_top_k_params(raw_params)
             if output != ("invalid function format", "FIND_TOP_K"):
                 k, select_column, reported_variable = output
@@ -144,7 +147,7 @@ class json_response:
                 self.errors.append(output)
 
         # Map
-        if self.func_name == "MAP":
+        elif self.func_name == "MAP":
             output = self._parse_map_params(raw_params)
             if output != ("invalid function format", "MAP"):
                 self.parameters = {
@@ -155,6 +158,17 @@ class json_response:
             else:
                 self.errors.append(output)
 
+        else:
+            self.errors.append("couldn't match parameters")
+
+        # Found a helpful example of try/except with conditions here: 
+        # https://stackoverflow.com/questions/13340599/can-i-raise-an-exception-if-a-statement-is-false
+        try:
+            if self.errors:
+                raise NameError("paramter(s) set incorrectly or not found")
+        except NameError:
+            raise NameError("paramter(s) set incorrectly or not found")
+
     def set_conditions(self, json_object: str) -> None:
         """
         Sets conditions based on the function specified in the call
@@ -163,21 +177,26 @@ class json_response:
         conds_dict = {}
 
         for i, cond in enumerate(json_object["conditions"]):
-            var_name = cond["variable_name"].lower()
-            restriction = cond["restriction"][0].lower()
-            bool_operators = cond["bool_operators"].upper()
+            var_name = cond.get("variable_name", "").lower().strip()
+
+            if not var_name:
+                self.conditions = None
+                return None
+
+            restriction = cond.get("restriction", " ")[0].lower().strip()
+            bool_operators = cond.get("bool_operators", "").upper().strip()
 
             conds_dict[var_name] = conds_dict.get(var_name, [])
 
             # Set variable's table as prefix
             if i == 0:
                 conds_dict[var_name].append(
-                    f"{VAR_NAMES[var_name]}.{var_name} {restriction}"
+                    f"[{VAR_NAMES[var_name]}].[{var_name}] {restriction}"
                 )
             # Combine conditions by boolean operator
             if i > 1:
                 conds_dict[var_name].append(
-                    f"{bool_operators} {VAR_NAMES[var_name]}.{var_name} {restriction}"
+                    f"{bool_operators} [{VAR_NAMES[var_name]}].[{var_name}] {restriction}"
                 )
 
         self.conditions = {
@@ -192,12 +211,19 @@ class json_response:
 
         for param_key, param_values in self.parameters.items():
             if param_key in ["column", "reported_variable", "select_columns"]:
-                table_lst.extend(re.findall(r"([\w_]+)\.", param_values))
+                # Remove brackets around table name 
+                table_lst.append(
+                    re.sub(pattern=r"[\[\]]+", 
+                           repl="",
+                           string=re.findall(r"(\[[\w_]+\])\.", param_values)[0]
+                    )
+                )
 
-        for cond_var_names in self.conditions.keys():
-            table_lst.append(VAR_NAMES[cond_var_names])
+        if self.conditions:
+            for cond_var_names in self.conditions.keys():
+                table_lst.append(VAR_NAMES[cond_var_names])
         
-        self.SQL_tables = set(table_lst)
+        self.SQL_tables = list(set(table_lst))
 
     def is_location():
         """
@@ -221,11 +247,16 @@ class json_response:
     # Checked documentation for how to use classes as dictionary keys (__hash__)
     # https://docs.python.org/3/reference/datamodel.html#object.__hash__
     def __hash__(self) -> int:
-        return hash(" ".join(
-            [self.func_name] + 
-            list(self.parameters.keys()) + 
-            list(self.parameters.values()) +
-            list(self.conditions.keys()) +
+        hash_key = [self.func_name] + \
+        list(self.parameters.keys()) + \
+        list(self.parameters.values())
+
+        if self.conditions:
+            hash_key + \
+            list(self.conditions.keys()) + \
             list(self.conditions.values())
+
+        return hash(" ".join(
+                hash_key
             )
         )
