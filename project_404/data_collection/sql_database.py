@@ -3,11 +3,8 @@ import os
 import csv
 import pathlib
 
-db_file_path = pathlib.Path(__file__).parent / "output_data/climate_database.db"
-csv_directory_path = pathlib.Path(__file__).parent / "output_data"
 
-
-def insert_tables_to_database(csv_directory_path, db_file_path):
+def insert_tables_to_database():
     """
     Traverses through the csv_directory_path and converts csv files present in the
     folder to add to the climate_database.
@@ -22,6 +19,8 @@ def insert_tables_to_database(csv_directory_path, db_file_path):
     Returns:
     - None
     """
+    db_file_path = pathlib.Path(__file__).parent / "output_data/climate_database.db"
+    csv_directory_path = pathlib.Path(__file__).parent / "output_data"
     connection = sqlite3.connect(db_file_path)
     cursor = connection.cursor()
 
