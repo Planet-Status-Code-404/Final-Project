@@ -60,7 +60,7 @@ def matching_tracts():  # this code is taken from gis stack exchange and modifie
     that we are examining are: Louisiana, Illinois, California, Texas, and
     Washington.
     Inputs: None
-    Output: CSV
+    Output: A dataframe with data for the specified list of states.
     """
     richmond_data_df = clean_richmond_data()
     tracts_shp_df = Tract()
@@ -249,10 +249,10 @@ def clean_fema_data():
     Inputs: None
     Output: CSV
     """
-    rename_fema_dict = {
+    rename_fema_dict = {  # https://saturncloud.io/blog/how-to-rename-column-and-index-with-pandas/#:~:text=Renaming%20columns%20in%20Pandas%20is,are%20the%20new%20column%20names.
         "STATE": "state",
         "COUNTY": "county",
-        "COUNTYFIPS": "countyfips",  # https://saturncloud.io/blog/how-to-rename-column-and-index-with-pandas/#:~:text=Renaming%20columns%20in%20Pandas%20is,are%20the%20new%20column%20names.
+        "COUNTYFIPS": "countyfips",
         "TRACT": "tract",
         "TRACTFIPS": "geo_id",
         "POPULATION": "population",
