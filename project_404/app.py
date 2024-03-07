@@ -1,5 +1,5 @@
 import sys
-from project_404.data_collection import census_data
+from project_404.data_collection import census_data, sql_database
 from project_404.data_collection import richmond
 from project_404.data_collection import epa
 from project_404.data_collection import utilities
@@ -18,8 +18,11 @@ def data_collection():
     richmond.combine_cvi_df()
     richmond.clean_fema_data()
 
-def data_collection_epa(cities: list, max_rows, visualization: bool, columns_to_viz: list):
-     """
+
+def data_collection_epa(
+    cities: list, max_rows, visualization: bool, columns_to_viz: list
+):
+    """
     This function downloads and/or pre-process the dataset along with performing
     cleaning operations and returns the csv files in the data_collection/output_data folder
         for the EPA data only!
@@ -27,20 +30,20 @@ def data_collection_epa(cities: list, max_rows, visualization: bool, columns_to_
         Parameters:
         city: enter only list combination of ["Chicago", "Dallas", "New_Orleans", "Houston", "Los_Angeles"]
                 Capitalization is important, it is case sensitive
-        max_rows: Choose any positive number but expect 2-10 seconds for each row API call. This is created for you 
+        max_rows: Choose any positive number but expect 2-10 seconds for each row API call. This is created for you
                     to be able to try a sample without waiting for the entire function to run.
         visualization: if you want exploratory visualization mark as True and give a list of columns to visualize
         columns_to_viz: list of column names, suggested to be between 1-3, see Readme file for column names.
 
         Output: creates a "EPA_Data.csv" in data_collection/output_data
 
-    Example call: 
-    app.data_collection_epa(["Chicago", "Dallas", "New_Orleans", "Houston", "Los_Angeles"], 
+    Example call:
+    app.data_collection_epa(["Chicago", "Dallas", "New_Orleans", "Houston", "Los_Angeles"],
                             5, True, ["demographics.P_LOWINC","demographics.PCT_MINORITY"])
-    """  
-     list_of_dfs = []
-     for city in cities:
-        if city.lower() == 'chicago':
+    """
+    list_of_dfs = []
+    for city in cities:
+        if city.lower() == "chicago":
             df = epa.collect_epa_data_from(city, max_rows, f"{city}_Tract_ID.csv")
             df = utilities.clean_epa(df)
             list_of_dfs.append(df)
@@ -49,10 +52,21 @@ def data_collection_epa(cities: list, max_rows, visualization: bool, columns_to_
             df = utilities.clean_epa(df)
             list_of_dfs.append(df)
 
-     merged_df = utilities.merge_dfs_to_csv(list_of_dfs, "EPA_Data.csv")
+    merged_df = utilities.merge_dfs_to_csv(list_of_dfs, "EPA_Data.csv")
 
-     if visualization:
-         epa.visualize_data(merged_df, columns_to_viz)
+    if visualization:
+        epa.visualize_data(merged_df, columns_to_viz)
+
+
+def execute_sql_database():
+    """
+    Executes the function to generate and populate SQL database tables.
+
+    This function calls the 'insert_tables_to_database()' function from the
+    'sql_database' module, which is responsible for creating tables in the SQL
+    database and populating them with data.
+    """
+    sql_database.insert_tables_to_database()
 
 
 def start_chatbot(ngrok_tunnel_key):
@@ -76,21 +90,29 @@ def start_chatbot(ngrok_tunnel_key):
         try:
             answers = function_calling_bot.call_functions(prompt)
         except ValueError:
-            answers = "Apologies, it seems that there isn't enough data for me " +\
-                f"to fulfill your request, {prompt}. Please try again."
+            answers = (
+                "Apologies, it seems that there isn't enough data for me "
+                + f"to fulfill your request, {prompt}. Please try again."
+            )
         except NameError:
-            answers = "Apologies, I am having difficulty understanding your request " +\
-                f"{prompt}. Please try again and make sure to use one of the provided variable names"
+            answers = (
+                "Apologies, I am having difficulty understanding your request "
+                + f"{prompt}. Please try again and make sure to use one of the provided variable names"
+            )
         except:
-            answers = "Apologies, I am having difficulty understanding your request " +\
-                f"{prompt}. Please try again."
+            answers = (
+                "Apologies, I am having difficulty understanding your request "
+                + f"{prompt}. Please try again."
+            )
 
         response_bot.responds_with_answers(answers)
 
 
 def run():
     if len(sys.argv) != 2:
-        print(f"Usage: python3 -m project_404 <data_collection> OR <climate_bot>")
+        print(
+            f"Usage: python3 -m project_404 <data_collection> OR <climate_bot> OR <sql_database>"
+        )
         sys.exit()
 
     if sys.argv[1] == "data_collection":
@@ -99,6 +121,15 @@ def run():
 
         if response in ["y", "yes", "Y", "Yes"]:
             data_collection()
+        else:
+            sys.exit()
+
+    if sys.argv[1] == "sql_database":
+        print("Start SQL database generation? (y/n)")
+        response = input("\n>>> ")
+
+        if response in ["y", "yes", "Y", "Yes"]:
+            execute_sql_database()
         else:
             sys.exit()
 

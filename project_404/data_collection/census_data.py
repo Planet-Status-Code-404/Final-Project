@@ -346,7 +346,6 @@ def process_census_data_to_csv():
     output_path = Path(__file__).resolve().parent / "output_data"
     output_path.mkdir(parents=True, exist_ok=True)
     merged_census_data.to_csv(output_path / "census_data.csv", index=False)
-    print("census_data.csv file created")
 
 
 # Creating the Census_data.csv for SQL Database

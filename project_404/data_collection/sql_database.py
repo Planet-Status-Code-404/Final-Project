@@ -42,7 +42,8 @@ def insert_tables_to_database(csv_directory_path, db_file_path):
                             primary_key_column = header
                             break
                     if primary_key_column is None:
-                        raise Exception("geo_id not found")
+                        print(f"Skipping file {file} as 'geo_id' column not found")
+                        continue
 
                     remaining_columns = [
                         (
@@ -57,12 +58,16 @@ def insert_tables_to_database(csv_directory_path, db_file_path):
 
                     cursor.execute(table_creation_sql)
 
-                    # Insert data into the table
+                    # Insert data into the table with error handling
                     for row in csv_reader:
-                        placeholders = ", ".join(["?"] * len(row))
-                        cursor.execute(
-                            f"INSERT INTO {table_name} VALUES ({placeholders})", row
-                        )
+                        try:
+                            cursor.execute(
+                                f"INSERT INTO {table_name} VALUES ({','.join(['?'] * len(row))})",
+                                row,
+                            )
+                        except sqlite3.IntegrityError as e:
+                            pass
+                    # print(f"{table_name} SQL table created")
     connection.commit()
     connection.close()
 
