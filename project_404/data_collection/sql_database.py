@@ -67,7 +67,6 @@ def insert_tables_to_database(csv_directory_path, db_file_path):
                             )
                         except sqlite3.IntegrityError as e:
                             pass
-                    # print(f"{table_name} SQL table created")
     connection.commit()
     connection.close()
 
