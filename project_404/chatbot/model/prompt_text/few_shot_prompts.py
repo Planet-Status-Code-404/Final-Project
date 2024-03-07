@@ -119,7 +119,7 @@ The following example:
 
     [INST] Here is another example:
 
-    Make me a map of psc_5 in Chicago.
+    Make me a map of psc_5 in Chicago where psc_30 is greater than 500.
 
     Should be converted to [/INST]
 
@@ -130,8 +130,8 @@ The following example:
             "parameters": ["psc_5", "", "Chicago"],
             "conditions": [
                 {
-                    "variable_name": "",
-                    "restriction": [""],
+                    "variable_name": "psc_30",
+                    "restriction": ["> 500"],
                     "boolean_operator": ""
                 }
             ]
@@ -140,7 +140,7 @@ The following example:
 
     [INST] Here is another example:
 
-    Make me a map of social vulnerability score in Chicago.
+    Make me a map of social vulnerability score in Chicago if psc_140 is equal to 5.
 
     Should be converted to [/INST]
 
@@ -151,8 +151,8 @@ The following example:
             "parameters": ["psc_77", "", "Chicago"],
             "conditions": [
                 {
-                    "variable_name": "",
-                    "restriction": [""],
+                    "variable_name": "psc_140",
+                    "restriction": ["== 5"],
                     "boolean_operator": ""
                 }
             ]
