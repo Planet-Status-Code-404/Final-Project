@@ -4,6 +4,10 @@ import pandas as pd
 import geopandas as gpd
 from pygris import tracts
 import requests
+import pathlib
+
+SOURCE_DATA = file_path = pathlib.Path(__file__).parent / "source_data"
+OUTPUT_DATA = file_path = pathlib.Path(__file__).parent / "output_data"
 
 
 class Tract:  # this code has been taken from agents.py
@@ -39,7 +43,8 @@ def clean_richmond_data():
     Output: A dataframe with data for the specified list of states.
     """
     state_list = ["LA", "IL", "TX", "WA", "CA"]
-    mapping_inequality = open(r"data_collection/source_data/mappinginequality.json")
+
+    mapping_inequality = open(f"{SOURCE_DATA}/mappinginequality.json")
     richmond_data = gpd.read_file(mapping_inequality)
     richmond_dataframe = richmond_data[richmond_data["state"].isin(state_list)]
     richmond_dataframe["state"] = (
@@ -94,7 +99,7 @@ def clean_redlined_with_tract_data():
         subset=["geo_id"], keep="last"
     )  # https://www.aporia.com/resources/how-to/drop-duplicate-rows-across-columns-dataframe/#:~:text=and%20PySpark%20DataFrames.-,Pandas,the%20columns%20are%20the%20same.&text=In%20some%20cases%2C%20having%20the,for%20being%20considered%20as%20duplicates.
     redlining_with_tracts_df.to_csv(
-        "data_collection/output_data/redlining_with_tracts.csv",
+        f"{OUTPUT_DATA}/redlining_with_tracts.csv",
         index=False,
         header=True,
     )
@@ -120,7 +125,7 @@ def clean_climate_vul_master(state_list):
     """
     final_cvi_list = []
     climate_vul_df = pd.read_csv(
-        r"data_collection/source_data/master_cvi_data_overview.csv"
+        f"{SOURCE_DATA}/master_cvi_data_overview.csv"
     )
     climate_vul_df.drop(
         columns=["Baseline: All", "Baseline: Infrastructure", "Baseline: Environment"]
@@ -158,7 +163,7 @@ def clean_climate_vul_indicators(state_list):
     """
     final_list = []
     climate_vul_df = pd.read_csv(
-        r"data_collection/source_data/master_cvi_data_indicators.csv"
+        f"{SOURCE_DATA}/master_cvi_data_indicators.csv"
     )
     filtered_dict = {
         "State": "state",
@@ -232,14 +237,14 @@ def combine_cvi_df():
         ["geo_id"] + [col for col in merged_cvi_df.columns if col != "geo_id"]
     ]
     merged_cvi_df.to_csv(
-        "data_collection/output_data/merged_cvi_data.csv", index=False, header=True
+        f"{OUTPUT_DATA}/merged_cvi_data.csv", index=False, header=True
     )
     print("The new CSV File merged_cvi_data' was created!")
 
 
 ###############################################################################
 # This section of the file contains data collection, processing, manipulation,#
-# and cleaning functions for the FEMA National Climate Index data              #
+# and cleaning functions for the FEMA National Climate Index data             #
 ###############################################################################
 
 
@@ -293,7 +298,7 @@ def clean_fema_data():
     }
     state_list= ["Louisiana", "Illinois", "Texas", "Washington","California"]
     fema_list = []
-    fema_df = pd.read_csv(r"data_collection/source_data/fema_nri_censustracts.csv")
+    fema_df = pd.read_csv(f"{SOURCE_DATA}/fema_nri_censustracts.csv")
     for state in state_list:
         for index, row in fema_df.iterrows():
             if state.lower() == row["STATE"].lower():
@@ -306,6 +311,6 @@ def clean_fema_data():
         ["geo_id"] + [col for col in final_fema_df.columns if col != "geo_id"]
     ]  # https://saturncloud.io/blog/pandas-tips-reorder-columns/
     final_fema_df.to_csv(
-        "data_collection/output_data/fema_data.csv", index=False, header=True
+        f"{OUTPUT_DATA}/fema_data.csv", index=False, header=True
     )
     print("The CSV file fema_data has been created!")

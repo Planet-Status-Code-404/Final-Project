@@ -4,26 +4,19 @@ from project_404.data_collection import richmond
 from project_404.data_collection import epa
 from project_404.data_collection import utilities
 from project_404.chatbot.model.agents import function_calling_agent, response_agent
+from project_404.chatbot.utilities import create_data_documentation
 
 
-def data_collection(state_list):
+def data_collection():
     """
     This function downloads and/or pre-process the dataset along with performing
     cleaning operations and returns the csv files in the data_collection/output_data folder.
     *For the state_list parameter please use: ["LA", "IL", "TX", "WA", "CA"]*
     """
     census_data.process_census_data_to_csv()
-    richmond.clean_redlined_with_tract_data(state_list)
+    richmond.clean_redlined_with_tract_data()
     richmond.combine_cvi_df()
-
-def data_collection_fema(state_list):
-    """
-    This function downloads and/or pre-process the dataset along with performing
-    cleaning operations and returns the csv files in the data_collection/output_data folder
-    for the FEMA data only!
-    *For the state_list parameter please use: ["Louisiana", "Illinois", "Texas", "Washington","California"]*
-    """
-    richmond.clean_fema_data(state_list)
+    richmond.clean_fema_data()
 
 def data_collection_epa(cities: list, max_rows, visualization: bool, columns_to_viz: list):
      """
@@ -60,8 +53,7 @@ def data_collection_epa(cities: list, max_rows, visualization: bool, columns_to_
      merged_df.insert(0, 'geo_id', merged_df.pop('geo_id')) 
      if visualization:
          epa.visualize_data(merged_df, columns_to_viz)
-     
-     
+
 
 def start_chatbot(ngrok_tunnel_key):
     """
@@ -70,6 +62,8 @@ def start_chatbot(ngrok_tunnel_key):
     then is summarized back to the user.
 
     """
+    # Generate list of usable variables
+    create_data_documentation()
     function_calling_bot = function_calling_agent(ngrok_tunnel_key)
     response_bot = response_agent(ngrok_tunnel_key)
 
@@ -79,7 +73,18 @@ def start_chatbot(ngrok_tunnel_key):
         if prompt in ["q", "quit", "quit()"]:
             break
 
-        answers = function_calling_bot.call_functions(prompt)
+        try:
+            answers = function_calling_bot.call_functions(prompt)
+        except ValueError:
+            answers = "Apologies, it seems that there isn't enough data for me " +\
+                f"to fulfill your request, {prompt}. Please try again."
+        except NameError:
+            answers = "Apologies, I am having difficulty understanding your request " +\
+                f"{prompt}. Please try again and make sure to use one of the provided variable names"
+        except:
+            answers = "Apologies, I am having difficulty understanding your request " +\
+                f"{prompt}. Please try again."
+
         response_bot.responds_with_answers(answers)
 
 
@@ -112,6 +117,7 @@ def run():
             if ngrok_tunnel_key in ["q", "quit", "quit()"]:
                 sys.exit()
             else:
+                print("\n\nInitializing chatbot. This will take a moment.")
                 start_chatbot(ngrok_tunnel_key)
 
         else:
