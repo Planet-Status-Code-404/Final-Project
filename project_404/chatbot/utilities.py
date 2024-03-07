@@ -76,7 +76,5 @@ def create_data_documentation():
     std_df.index.name = "variable name"
     std_df["description"] = std_df["description"].str.replace("\n", " ").str.strip()
  
-    pd.DataFrame.to_html(std_df, justify="center",
-                         buf=pathlib.Path(__file__).parent / "~Documentation/variable_names.html")
-    
-    return std_df
+    pd.DataFrame.to_excel(std_df, sheet_name="Documentation",
+                         excel_writer=pathlib.Path(__file__).parent / "~Documentation/variable_names.xlsx")

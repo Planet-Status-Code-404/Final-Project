@@ -4,7 +4,7 @@ from project_404.data_collection import richmond
 from project_404.data_collection import epa
 from project_404.data_collection import utilities
 from project_404.chatbot.model.agents import function_calling_agent, response_agent
-from project_404.chatbot.utilities import function_calling_agent, response_agent
+from project_404.chatbot.utilities import create_data_documentation
 
 
 def data_collection():
@@ -62,6 +62,8 @@ def start_chatbot(ngrok_tunnel_key):
     then is summarized back to the user.
 
     """
+    # Generate list of usable variables
+    create_data_documentation()
     function_calling_bot = function_calling_agent(ngrok_tunnel_key)
     response_bot = response_agent(ngrok_tunnel_key)
 
@@ -70,7 +72,7 @@ def start_chatbot(ngrok_tunnel_key):
 
         if prompt in ["q", "quit", "quit()"]:
             break
-        
+
         try:
             answers = function_calling_bot.call_functions(prompt)
         except ValueError:
