@@ -17,6 +17,7 @@ def data_collection():
     richmond.clean_redlined_with_tract_data()
     richmond.combine_cvi_df()
     richmond.clean_fema_data()
+    sql_database.insert_tables_to_database()
 
 
 def data_collection_epa(
@@ -63,17 +64,6 @@ def data_collection_epa(
 
         if visualization:
             epa.visualize_data(merged_df, columns_to_viz)
-
-
-def execute_sql_database():
-    """
-    Executes the function to generate and populate SQL database tables.
-
-    This function calls the 'insert_tables_to_database()' function from the
-    'sql_database' module, which is responsible for creating tables in the SQL
-    database and populating them with data.
-    """
-    sql_database.insert_tables_to_database()
 
 
 def start_chatbot(ngrok_tunnel_key):
@@ -129,15 +119,6 @@ def run():
         if response in ["y", "yes", "Y", "Yes"]:
             data_collection()
             data_collection_epa()
-        else:
-            sys.exit()
-
-    if sys.argv[1] == "sql_database":
-        print("Start SQL database generation? (y/n)")
-        response = input("\n>>> ")
-
-        if response in ["y", "yes", "Y", "Yes"]:
-            execute_sql_database()
         else:
             sys.exit()
 
