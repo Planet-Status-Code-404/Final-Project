@@ -115,8 +115,8 @@ def run():
         response = input("\n>>> ")
 
         if response in ["y", "yes", "Y", "Yes"]:
-            data_collection()
             data_collection_epa()
+            data_collection()
         else:
             sys.exit()
 
