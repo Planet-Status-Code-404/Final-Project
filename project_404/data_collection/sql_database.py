@@ -74,4 +74,4 @@ def insert_tables_to_database():
 
 
 # Executing the function to add data in the directory to the database
-insert_tables_to_database(csv_directory_path, db_file_path)
+insert_tables_to_database()
