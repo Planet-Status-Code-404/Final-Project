@@ -108,7 +108,7 @@ def start_chatbot(ngrok_tunnel_key):
 def run():
     if len(sys.argv) != 2:
         print(
-            f"Usage: python3 -m project_404 <data_collection> OR <climate_bot> OR <sql_database>"
+            f"Usage: python3 -m project_404 <data_collection> OR <sql_database> OR <climate_bot>"
         )
         sys.exit()
 
