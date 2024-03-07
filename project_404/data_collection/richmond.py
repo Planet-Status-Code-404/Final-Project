@@ -28,7 +28,7 @@ class Tract:  # this code has been taken from agents.py
 # This section of the file contains data collection, processing,manipulation,#
 # and cleaning functions for the Richmond Redlining dataset.                 #
 #############################################################################
-def clean_richmond_data(state_list):
+def clean_richmond_data():
     """
     Purpose: Get data from the Richmond Redlining Mapping Inequality dataset
     and filter it by state. The states that we are examining are: Louisiana,
@@ -38,6 +38,7 @@ def clean_richmond_data(state_list):
     their abbreviation. Eg: Illinois should be 'IL'.
     Output: A dataframe with data for the specified list of states.
     """
+    state_list = ["LA", "IL", "TX", "WA", "CA"]
     mapping_inequality = open(r"data_collection/source_data/mappinginequality.json")
     richmond_data = gpd.read_file(mapping_inequality)
     richmond_dataframe = richmond_data[richmond_data["state"].isin(state_list)]
@@ -48,7 +49,6 @@ def clean_richmond_data(state_list):
 
 
 def matching_tracts(
-    state_list,
 ):  # this code is taken from gis stack exchange and modified
     """
     Purpose: Create a new csv which has tract information for specified state
@@ -58,7 +58,8 @@ def matching_tracts(
     Tract class. These states are "LA", "IL", "TX", "WA", "CA".
     Output: new csv
     """
-    richmond_data_df = clean_richmond_data(state_list)
+    state_list= ["LA", "IL", "TX", "WA", "CA"]
+    richmond_data_df = clean_richmond_data()
     tracts_shp_df = Tract()
     tracts_shp_df.tract_shp = tracts_shp_df.tract_shp.to_crs(richmond_data_df.crs)
     combined_tracts_df = gpd.overlay(
@@ -72,7 +73,7 @@ def matching_tracts(
     return combined_tracts_df
 
 
-def clean_redlined_with_tract_data(state_list):
+def clean_redlined_with_tract_data():
     """
     Purpose: Create a CSV file with combined information from the 2 previous functions.
     Inputs: List (list of states).Please input states using their abbreviated form.
@@ -80,8 +81,8 @@ def clean_redlined_with_tract_data(state_list):
     Tract class. These states are "LA", "IL", "TX", "WA", "CA".
     Output: new csv
     """
-
-    redlining_with_tracts_df = matching_tracts(state_list)
+    state_list= ["LA", "IL", "TX", "WA", "CA"]
+    redlining_with_tracts_df = matching_tracts()
     redlining_with_tracts_df.columns = (
         redlining_with_tracts_df.columns.str.lower().str.replace("geoid", "geo_id")
     )
@@ -97,7 +98,7 @@ def clean_redlined_with_tract_data(state_list):
         index=False,
         header=True,
     )
-    print("The new CSV file draft_redlining_tract_csv was created!")
+    print("The new CSV file redlining_tract_csv was created!")
 
 
 #############################################################################
@@ -242,7 +243,7 @@ def combine_cvi_df():
 ###############################################################################
 
 
-def clean_fema_data(state_list):
+def clean_fema_data():
     """
     Purpose: Get data from the FEMA National Risk Index. All the column names
     have been hardcoded.
@@ -290,7 +291,7 @@ def clean_fema_data(state_list):
         "WNTW_RISKS": "winter_risks",
         "WNTW_EALS": "winter_annual_loss_score",
     }
-
+    state_list= ["Louisiana", "Illinois", "Texas", "Washington","California"]
     fema_list = []
     fema_df = pd.read_csv(r"data_collection/source_data/fema_nri_censustracts.csv")
     for state in state_list:
