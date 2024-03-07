@@ -1,6 +1,6 @@
 import pandas as pd
 from sqlalchemy import create_engine
-import pathlib
+from pathlib import Path
 
 def dataframe_to_sql(df, table_name, db_name):
     """
@@ -39,8 +39,8 @@ def merge_dfs_to_csv(list_of_dfs, name_of_csv):
     """
 
     merged_df = pd.concat(list_of_dfs)
-
-    merged_df.to_csv(f"project_404/data_collection/output_data/{name_of_csv}")
+    path = Path(__file__).resolve().parent / f"output_data/{name_of_csv}"
+    merged_df.to_csv(path)
 
     return merged_df
 
