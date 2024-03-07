@@ -16,16 +16,19 @@ To run the data collection code, run:
 $ poetry run python -m project_404 data_collection 
 </p>
 
-This process will take a few moments. After data_collection is complete you can then begin to run the chatbot.
+This process will take a few moments. After data_collection is complete you can then generate the SQL database using the command line input,
+<p align="center">
+$ poetry run python -m project_404 sql_database 
+</p>
 
-To run the climate chatbot, run: 
+You can now interact with the chatbot! To begin the chatbot, run:
 <p align="center">
 $ poetry run python -m project_404 climate_bot
 </p>
 
 The user will then be prompted to input a Ngrok tunnel key. The chatbot relies on an LLM self-hosted on Google Colab, and the key is generated every time the server is started. The key is located at the bottom of the file. To get access to the Google Colab Jupiter notebook, contact Gregory Mitchell (gmitchelljr@uchicago.edu).  
 
-Once, the tunnel key has been inputted, the user can now make requests for the chatbot to provide maps or other data summaries. For best results, please refer to the “standardized” variable name documentation in GitHub (link)--these are the vairable names that follow the pattern psc_###. 
+Once, the tunnel key has been inputted, the user can now make requests for the chatbot to provide maps or other data summaries. For best results, please refer to the “standardized” variable name documentation in GitHub (link)[https://github.com/Planet-Status-Code-404/Final-Project/tree/6587ddf83d6acbd35d8913658722d8ce211c52fa/project_404/chatbot/~Documentation]--these are the vairable names that follow the pattern psc_###. 
 
 ## Chatbot
 The main functionality of the chatbot is to use SQL to help summarize data and to generate maps. You can add restrictions to the data as well (e.g., where life expectancy is less than 60). Again, because of the nature of LLMs, the ability for the chatbot to correctly parse input from the user is often inconsistent. While our code has been written around this fact, some trial and error with prompts may be needed. Also, due to time constraints, map making was the primary feature focused on and tested, but the bot can otherwise summarize the data. The details of the LLMs function calling abilities are below: 
