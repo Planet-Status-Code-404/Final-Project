@@ -4,7 +4,8 @@ import pathlib
 
 def dataframe_to_sql(df, table_name, db_name):
     """
-    Stores a DataFrame in a SQL database.
+    Stores a DataFrame in a SQL database. This function is used for exploratory steps of 
+    understanding how the Chatbot interacts with SQL databases.
 
     Parameters:
     - df: DataFrame to store in the database.
@@ -43,16 +44,16 @@ def merge_dfs_to_csv(list_of_dfs, name_of_csv):
 
     return merged_df
 
-def clean_epa(filename):
+def clean_epa(epa_df):
     """
     Cleans redundant EPA EJ DF columns we do not want.
 
-    Parameters: filename, string
+    Parameters: epa_df -> a pandas dataframe of EPA EJ data.
 
     Returns: None, updates the EPA data file in place
     """
-    epa = pd.read_csv(f"./output_data/{filename}")
-    epa.drop(['demographics.P_NHWHITE', 'demographics.P_NHBLACK',
+
+    epa_df.drop(['demographics.P_NHWHITE', 'demographics.P_NHBLACK',
             "demographics.P_NHASIAN","demographics.P_HISP",
             "demographics.P_NHAMERIND","demographics.P_NHHAWPAC",
             "demographics.P_NHOTHER_RACE","demographics.P_NHTWOMORE"], axis=1)
@@ -77,7 +78,6 @@ def clean_epa(filename):
         "extras.RAW_CI_FLOOD30", "extras.RAW_CI_FIRE", "extras.RAW_CI_FIRE30"
     ]
 
-    # Assuming 'df' is your original DataFrame
-    epa = epa.loc[:, columns_to_keep]
+    epa_df = epa_df.loc[:, columns_to_keep]
 
-    epa.to_csv(f"./output_data/{filename}")
+    return epa_df
