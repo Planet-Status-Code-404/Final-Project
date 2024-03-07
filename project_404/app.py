@@ -18,7 +18,8 @@ def data_collection():
     richmond.combine_cvi_df()
     richmond.clean_fema_data()
 
-def data_collection_epa(cities: list, max_rows, visualization: bool, columns_to_viz: list):
+def data_collection_epa(cities=["Chicago", "Dallas", "New_Orleans", "Houston", "Los_Angeles"], 
+                        max_rows=5, visualization=False, columns_to_viz=["demographics.P_LOWINC","demographics.PCT_MINORITY"]):
      """
     This function downloads and/or pre-process the dataset along with performing
     cleaning operations and returns the csv files in the data_collection/output_data folder
@@ -99,7 +100,7 @@ def run():
 
         if response in ["y", "yes", "Y", "Yes"]:
             data_collection()
-            data_collection_epa()
+            data_collection_epa()    
         else:
             sys.exit()
 
