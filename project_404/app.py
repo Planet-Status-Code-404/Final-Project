@@ -18,9 +18,14 @@ def data_collection():
     richmond.combine_cvi_df()
     richmond.clean_fema_data()
 
-def data_collection_epa(cities=["Chicago", "Dallas", "New_Orleans", "Houston", "Los_Angeles"], 
-                        max_rows=5, visualization=False, columns_to_viz=["demographics.P_LOWINC","demographics.PCT_MINORITY"]):
-     """
+
+def data_collection_epa(
+    cities=["Chicago", "Dallas", "New_Orleans", "Houston", "Los_Angeles"],
+    max_rows=5,
+    visualization=False,
+    columns_to_viz=["demographics.P_LOWINC", "demographics.PCT_MINORITY"],
+):
+    """
     This function downloads and/or pre-process the dataset along with performing
     cleaning operations and returns the csv files in the data_collection/output_data folder
         for the EPA data only!
@@ -50,14 +55,14 @@ def data_collection_epa(cities=["Chicago", "Dallas", "New_Orleans", "Houston", "
             df = utilities.clean_epa(df)
             list_of_dfs.append(df)
 
-     merged_df = utilities.merge_dfs_to_csv(list_of_dfs, "EPA_Data.csv")
-     merged_df.insert(0, 'geo_id', merged_df.pop('geo_id')) 
-     if visualization:
-         epa.visualize_data(merged_df, columns_to_viz)
-    merged_df = utilities.merge_dfs_to_csv(list_of_dfs, "EPA_Data.csv")
+        merged_df = utilities.merge_dfs_to_csv(list_of_dfs, "EPA_Data.csv")
+        merged_df.insert(0, "geo_id", merged_df.pop("geo_id"))
+        if visualization:
+            epa.visualize_data(merged_df, columns_to_viz)
+        merged_df = utilities.merge_dfs_to_csv(list_of_dfs, "EPA_Data.csv")
 
-    if visualization:
-        epa.visualize_data(merged_df, columns_to_viz)
+        if visualization:
+            epa.visualize_data(merged_df, columns_to_viz)
 
 
 def execute_sql_database():
@@ -123,7 +128,7 @@ def run():
 
         if response in ["y", "yes", "Y", "Yes"]:
             data_collection()
-            data_collection_epa()    
+            data_collection_epa()
         else:
             sys.exit()
 
