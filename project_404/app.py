@@ -85,7 +85,7 @@ def start_chatbot(ngrok_tunnel_key):
                 f"to fulfill your request, {prompt}. Please try again."
         except NameError:
             answers = "Apologies, I am having difficulty understanding your request " +\
-                f"{prompt}. Please try again."
+                f"{prompt}. Please try again and make sure to use one of the provided variable names"
         except:
             answers = "Apologies, I am having difficulty understanding your request " +\
                 f"{prompt}. Please try again."
