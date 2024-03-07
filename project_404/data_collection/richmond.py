@@ -37,8 +37,8 @@ class Tract:  # this code has been taken from agents.py
 def clean_richmond_data():
     """
     Purpose: Get data from the Richmond Redlining Mapping Inequality dataset
-    and filter it by state. The states that we are examining are: Louisiana,
-    Illinois, California, Texas, and Washington.
+    The states that we are examining are: Louisiana,Illinois, California,
+    Texas, and Washington.
     Input: None
     Output: A dataframe with data for the specified list of states.
     """
@@ -56,8 +56,9 @@ def clean_richmond_data():
 def matching_tracts():  # this code is taken from gis stack exchange and modified
     """
     Purpose: Create a new csv which has tract information for specified state
-    list along with the data from the richmond redlining dataset. The states that we are examining are: Louisiana,
-    Illinois, California, Texas, and Washington.
+    list along with the data from the richmond redlining dataset. The states
+    that we are examining are: Louisiana, Illinois, California, Texas, and
+    Washington.
     Inputs: None
     Output: CSV
     """
@@ -79,16 +80,16 @@ def clean_redlined_with_tract_data():
     """
     Purpose: Create a CSV file with combined information from the 2 previous functions.
     Inputs: None
-    Tract class. These states are "LA", "IL", "TX", "WA", "CA".
     Output: CSV
     """
     redlining_with_tracts_df = matching_tracts()
     redlining_with_tracts_df.columns = (
         redlining_with_tracts_df.columns.str.lower().str.replace("geoid", "geo_id")
     )
-    redlining_with_tracts_df = redlining_with_tracts_df[
+    redlining_with_tracts_df = redlining_with_tracts_df.loc[
+        :,
         ["geo_id"]
-        + [col for col in redlining_with_tracts_df.columns if col != "geo_id"]
+        + [col for col in redlining_with_tracts_df.columns if col != "geo_id"],
     ]  # https://saturncloud.io/blog/pandas-tips-reorder-columns/
     redlining_with_tracts_df = redlining_with_tracts_df.drop_duplicates(
         subset=["geo_id"], keep="last"
@@ -111,12 +112,12 @@ def clean_climate_vul_master():
     """
     Purpose:
     -Extract data from the Climate Vulnerability Index Master Overview dataset
-    for the specified state list.
+    for the specified state list (in function).
     -Filter out columns that are not needed and since only one name needs to be
-    changed other cleaning methods to filter instead of hardcoding!
+    changed other cleaning methods to filter instead of hardcoding.
     -Put the data into a pandas dataframe.
-    Inputs: state_list (the list of states for which we want data)
-    Output: new pandas dataframe with our filtered data.
+    Inputs: None
+    Output: New pandas dataframe with our filtered data.
     """
     state_list = ["LA", "IL", "TX", "WA", "CA"]
     final_cvi_list = []
@@ -149,7 +150,7 @@ def clean_climate_vul_indicators():
 
      Purpose:
      -Extract data from the Climate Vulnerability Index Indicators dataset
-     for the specified state list.
+     for the specified state list (in function).
      -Filter out columns that are not needed and hardcode the col names
      -Put the data into a pandas dataframe.
      Inputs: State_list (the list of states for which we want data)
@@ -213,9 +214,10 @@ def combine_cvi_df():
     *Special note: Please note that this CSV is too big to be uploaded to GitHub.
     You can find it in the dropbox (https://www.dropbox.com/home/Planet%20Status%20Code%20404)
 
-     Purpose:Combine the two Climate Vulnerability Index dataframes and produce a CSV.
+     Purpose:Combine the two Climate Vulnerability Index dataframes and
+     produce a joint data CSV.
      Inputs: None.
-     Output: New CSV.
+     Output: CSV.
     """
 
     df_cvi_master = clean_climate_vul_master()
