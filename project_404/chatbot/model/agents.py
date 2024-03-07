@@ -1,8 +1,5 @@
 import ollama  # Ollama is program that allows us to create and host LLMs
 from typing import List, Dict
-from inflect import (
-    engine,
-)  # Used to convert things like "1st" to "first" -- helpful for communicating with the LLM
 from pygris import tracts  # Gets census (tigris) shapefiles
 import folium  # Used to make leaflet interactive maps
 import pandas as pd
@@ -18,7 +15,7 @@ import sqlite3
 import pathlib
 import re
 
-from project_404.chatbot.model.json_responses import json_response, VAR_NAMES
+from project_404.chatbot.model.json_responses import json_response
 from project_404.chatbot.model.prompt_prefixes import function_agent_prefix
 
 
@@ -178,7 +175,10 @@ class agent_functions:
                 location=[48, -102], tiles="cartodb positron", zoom_start=4
             )
 
+        # Cleans variable/column name for map use
         column_name = re.findall(r"\.\[([\.\w_\s\d]+)\]", select_column)[0]
+
+        # Create jenks breaks for map based on the data
         data_scale = sorted(
             jenks_breaks(pd.to_numeric(df[column_name]).to_numpy(), n_classes=5)
         )
@@ -211,6 +211,7 @@ class agent_functions:
             tracts = tracts.filter(regex=f"^{location_state_fips}", axis=0)
         tracts = tracts.to_json()
 
+        # Customize map with color scale
         folium.GeoJson(
             data=tracts,
             style_function=lambda feature: {

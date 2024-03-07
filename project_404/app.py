@@ -18,6 +18,7 @@ def data_collection():
     richmond.combine_cvi_df()
     richmond.clean_fema_data()
 
+
 def data_collection_epa(cities: list, max_rows, visualization: bool, columns_to_viz: list):
      """
     This function downloads and/or pre-process the dataset along with performing
