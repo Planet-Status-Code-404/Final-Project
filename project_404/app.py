@@ -19,9 +19,13 @@ def data_collection():
     richmond.clean_fema_data()
 
 
-def data_collection_epa(cities=["Chicago", "Dallas", "New_Orleans", "Houston", "Los_Angeles"], 
-                        max_rows=5, visualization=False, columns_to_viz=["demographics.P_LOWINC","demographics.PCT_MINORITY"]):
-     """
+def data_collection_epa(
+    cities=["Chicago", "Dallas", "New_Orleans", "Houston", "Los_Angeles"],
+    max_rows=5,
+    visualization=False,
+    columns_to_viz=["demographics.P_LOWINC", "demographics.PCT_MINORITY"],
+):
+    """
     This function downloads and/or pre-process the dataset along with performing
     cleaning operations and returns the csv files in the data_collection/output_data folder
         for the EPA data only!
