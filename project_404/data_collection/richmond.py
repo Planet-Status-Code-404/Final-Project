@@ -32,14 +32,14 @@ class Tract:  # this code has been taken from agents.py
 # This section of the file contains data collection, processing,manipulation,#
 # and cleaning functions for the Richmond Redlining dataset.                 #
 #############################################################################
+
+
 def clean_richmond_data():
     """
     Purpose: Get data from the Richmond Redlining Mapping Inequality dataset
-    and filter it by state. The states that we are examining are: Louisiana,
-    Illinois, California, Texas, and Washington. However, for testing purposes you can
-    input any state you would like except Hawaii and Alaska.
-    Input: List of states whose data we want to explore. States should be inputted with
-    their abbreviation. Eg: Illinois should be 'IL'.
+    The states that we are examining are: Louisiana,Illinois, California,
+    Texas, and Washington.
+    Input: None
     Output: A dataframe with data for the specified list of states.
     """
     state_list = ["LA", "IL", "TX", "WA", "CA"]
@@ -53,17 +53,15 @@ def clean_richmond_data():
     return richmond_dataframe
 
 
-def matching_tracts(
-):  # this code is taken from gis stack exchange and modified
+def matching_tracts():  # this code is taken from gis stack exchange and modified
     """
     Purpose: Create a new csv which has tract information for specified state
-    list along with the data from the richmond redlining dataset.
-    Inputs: List (list of states). Please input states
-    using their abbreviated form. This function will only work for states specified in the
-    Tract class. These states are "LA", "IL", "TX", "WA", "CA".
-    Output: new csv
+    list along with the data from the richmond redlining dataset. The states
+    that we are examining are: Louisiana, Illinois, California, Texas, and
+    Washington.
+    Inputs: None
+    Output: CSV
     """
-    state_list= ["LA", "IL", "TX", "WA", "CA"]
     richmond_data_df = clean_richmond_data()
     tracts_shp_df = Tract()
     tracts_shp_df.tract_shp = tracts_shp_df.tract_shp.to_crs(richmond_data_df.crs)
@@ -81,19 +79,17 @@ def matching_tracts(
 def clean_redlined_with_tract_data():
     """
     Purpose: Create a CSV file with combined information from the 2 previous functions.
-    Inputs: List (list of states).Please input states using their abbreviated form.
-    This function will only work for states specified in the
-    Tract class. These states are "LA", "IL", "TX", "WA", "CA".
-    Output: new csv
+    Inputs: None
+    Output: CSV
     """
-    state_list= ["LA", "IL", "TX", "WA", "CA"]
     redlining_with_tracts_df = matching_tracts()
     redlining_with_tracts_df.columns = (
         redlining_with_tracts_df.columns.str.lower().str.replace("geoid", "geo_id")
     )
-    redlining_with_tracts_df = redlining_with_tracts_df[
+    redlining_with_tracts_df = redlining_with_tracts_df.loc[
+        :,
         ["geo_id"]
-        + [col for col in redlining_with_tracts_df.columns if col != "geo_id"]
+        + [col for col in redlining_with_tracts_df.columns if col != "geo_id"],
     ]  # https://saturncloud.io/blog/pandas-tips-reorder-columns/
     redlining_with_tracts_df = redlining_with_tracts_df.drop_duplicates(
         subset=["geo_id"], keep="last"
@@ -112,21 +108,20 @@ def clean_redlined_with_tract_data():
 #############################################################################
 
 
-def clean_climate_vul_master(state_list):
+def clean_climate_vul_master():
     """
     Purpose:
     -Extract data from the Climate Vulnerability Index Master Overview dataset
-    for the specified state list.
+    for the specified state list (in function).
     -Filter out columns that are not needed and since only one name needs to be
-    changed other cleaning methods to filter instead of hardcoding!
+    changed other cleaning methods to filter instead of hardcoding.
     -Put the data into a pandas dataframe.
-    Inputs: state_list (the list of states for which we want data)
-    Output: new pandas dataframe with our filtered data.
+    Inputs: None
+    Output: New pandas dataframe with our filtered data.
     """
+    state_list = ["LA", "IL", "TX", "WA", "CA"]
     final_cvi_list = []
-    climate_vul_df = pd.read_csv(
-        f"{SOURCE_DATA}/master_cvi_data_overview.csv"
-    )
+    climate_vul_df = pd.read_csv(f"{SOURCE_DATA}/master_cvi_data_overview.csv")
     climate_vul_df.drop(
         columns=["Baseline: All", "Baseline: Infrastructure", "Baseline: Environment"]
     )
@@ -147,7 +142,7 @@ def clean_climate_vul_master(state_list):
     return climate_index_df
 
 
-def clean_climate_vul_indicators(state_list):
+def clean_climate_vul_indicators():
     """
     *Special note: Please note that this data source for this function
     is too big to be in the GitHub repo. However, they are both availabile
@@ -155,16 +150,15 @@ def clean_climate_vul_indicators(state_list):
 
      Purpose:
      -Extract data from the Climate Vulnerability Index Indicators dataset
-     for the specified state list.
+     for the specified state list (in function).
      -Filter out columns that are not needed and hardcode the col names
      -Put the data into a pandas dataframe.
      Inputs: State_list (the list of states for which we want data)
      Output: New pandas dataframe with our filtered data.
     """
+    state_list = ["LA", "IL", "TX", "WA", "CA"]
     final_list = []
-    climate_vul_df = pd.read_csv(
-        f"{SOURCE_DATA}/master_cvi_data_indicators.csv"
-    )
+    climate_vul_df = pd.read_csv(f"{SOURCE_DATA}/master_cvi_data_indicators.csv")
     filtered_dict = {
         "State": "state",
         "County": "county",
@@ -203,6 +197,7 @@ def clean_climate_vul_indicators(state_list):
         "Tornado - Annualized Frequency": "annual_tornado_freq",
         "Winter Weather - Annualized Frequency": "annual_winter_weather_freq",
     }
+    state_list = ["LA", "IL", "TX", "WA", "CA"]
     for state in state_list:
         state_rows = climate_vul_df[climate_vul_df["State"] == state]
         for index, row in state_rows.iterrows():
@@ -217,15 +212,16 @@ def clean_climate_vul_indicators(state_list):
 def combine_cvi_df():
     """
     *Special note: Please note that this CSV is too big to be uploaded to GitHub.
-    You can find it in the dropbox.
+    You can find it in the dropbox (https://www.dropbox.com/home/Planet%20Status%20Code%20404)
 
-     Purpose:Combine the two Climate Vulnerability Index dataframes and produce a CSV.
+     Purpose:Combine the two Climate Vulnerability Index dataframes and
+     produce a joint data CSV.
      Inputs: None.
-     Output: New CSV.
+     Output: CSV.
     """
-    state_list = ["LA", "IL", "TX", "WA", "CA"]
-    df_cvi_master = clean_climate_vul_master(state_list)
-    df_cvi_indicators = clean_climate_vul_indicators(state_list)
+
+    df_cvi_master = clean_climate_vul_master()
+    df_cvi_indicators = clean_climate_vul_indicators()
     merged_cvi_df = pd.merge(
         df_cvi_master,
         df_cvi_indicators,
@@ -236,9 +232,7 @@ def combine_cvi_df():
     merged_cvi_df = merged_cvi_df[
         ["geo_id"] + [col for col in merged_cvi_df.columns if col != "geo_id"]
     ]
-    merged_cvi_df.to_csv(
-        f"{OUTPUT_DATA}/merged_cvi_data.csv", index=False, header=True
-    )
+    merged_cvi_df.to_csv(f"{OUTPUT_DATA}/merged_cvi_data.csv", index=False, header=True)
     print("The new CSV File merged_cvi_data' was created!")
 
 
@@ -252,8 +246,8 @@ def clean_fema_data():
     """
     Purpose: Get data from the FEMA National Risk Index. All the column names
     have been hardcoded.
-    Inputs: State_list (the list of states for which we want data)
-    Output: New pandas dataframe with our filtered data.
+    Inputs: None
+    Output: CSV
     """
     rename_fema_dict = {
         "STATE": "state",
@@ -296,7 +290,7 @@ def clean_fema_data():
         "WNTW_RISKS": "winter_risks",
         "WNTW_EALS": "winter_annual_loss_score",
     }
-    state_list= ["Louisiana", "Illinois", "Texas", "Washington","California"]
+    state_list = ["Louisiana", "Illinois", "Texas", "Washington", "California"]
     fema_list = []
     fema_df = pd.read_csv(f"{SOURCE_DATA}/fema_nri_censustracts.csv")
     for state in state_list:
@@ -310,7 +304,5 @@ def clean_fema_data():
     final_fema_df = final_fema_df[
         ["geo_id"] + [col for col in final_fema_df.columns if col != "geo_id"]
     ]  # https://saturncloud.io/blog/pandas-tips-reorder-columns/
-    final_fema_df.to_csv(
-        f"{OUTPUT_DATA}/fema_data.csv", index=False, header=True
-    )
+    final_fema_df.to_csv(f"{OUTPUT_DATA}/fema_data.csv", index=False, header=True)
     print("The CSV file fema_data has been created!")
