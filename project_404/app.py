@@ -58,12 +58,10 @@ def data_collection_epa(
 
         merged_df = utilities.merge_dfs_to_csv(list_of_dfs, "EPA_Data.csv")
         merged_df.insert(0, "geo_id", merged_df.pop("geo_id"))
+        merged_df.index.name = "col"
         if visualization:
             epa.visualize_data(merged_df, columns_to_viz)
-        merged_df = utilities.merge_dfs_to_csv(list_of_dfs, "EPA_Data.csv")
 
-        if visualization:
-            epa.visualize_data(merged_df, columns_to_viz)
 
 
 def start_chatbot(ngrok_tunnel_key):
