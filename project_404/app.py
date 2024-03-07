@@ -57,7 +57,7 @@ def data_collection_epa(cities: list, max_rows, visualization: bool, columns_to_
             list_of_dfs.append(df)
 
      merged_df = utilities.merge_dfs_to_csv(list_of_dfs, "EPA_Data.csv")
-
+     merged_df.insert(0, 'geo_id', merged_df.pop('geo_id')) 
      if visualization:
          epa.visualize_data(merged_df, columns_to_viz)
      
@@ -94,6 +94,7 @@ def run():
 
         if response in ["y", "yes", "Y", "Yes"]:
             data_collection()
+            data_collection_epa()
         else:
             sys.exit()
 
