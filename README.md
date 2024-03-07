@@ -30,21 +30,16 @@ Once, the tunnel key has been inputted, the user can now make requests for the c
 ## Chatbot
 The main functionality of the chatbot is to use SQL to help summarize data and to generate maps. You can add restrictions to the data as well (e.g., where life expectancy is less than 60). Again, because of the nature of LLMs, the ability for the chatbot to correctly parse input from the user is often inconsistent. While our code has been written around this fact, some trial and error with prompts may be needed. Also, due to time constraints, map making was the primary feature focused on and tested, but the bot can otherwise summarize the data. The details of the LLMs function calling abilities are below: 
 
-Data summaries:  
-
-- Available function names  
+Data summary functions:    
 - Find top k  
 - Sum  
 - Average  
 - Count  
 - Median  
 
-Map making  
-
+Map making:
 - To make a map, you must specify the data to be mapped, and can specify the color of the map and the location/city of focus 
-
 - The color can be a hexcode, a word, or a two-color name separated by hyphen (e.g., red-green).  
-
 - The maps are programmed to open up in your browser automatically, however, if this doesn’t happen, you may have to open it up manually. To do this go to “Final-Project/project_404/chatbot/maps” and open the desired map. Once opened, the map will be interactive in the browser. 
 
 Examples: 
