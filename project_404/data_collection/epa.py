@@ -3,6 +3,7 @@ import requests
 from sqlalchemy import create_engine
 import seaborn as sns
 import matplotlib.pyplot as plt 
+from pathlib import Path
 
 def collect_epa_data_from(city, max_rows, data_file):
     """
@@ -19,12 +20,14 @@ def collect_epa_data_from(city, max_rows, data_file):
 
     #Only Chicago fips codes are in a cvs file and formatted differently.
     if city.lower() == 'chicago':
-        fips_codes_df = pd.read_csv(f"project_404/data_collection/source_data/{data_file}")
+        path = Path(__file__).resolve().parent / f"source_data/{data_file}"
+        fips_codes_df = pd.read_csv(path)
         fips_codes_df['Processed'] = fips_codes_df.iloc[:, 0].apply(lambda x: str(int(x * 100)).ljust(6, '0'))
         base_fips = "17031"
         fips_codes = {base_fips + processed_id for processed_id in fips_codes_df['Processed']}
     else:
-        fips_codes_df = pd.read_excel(f"project_404/data_collection/source_data/{data_file}", header=None, engine='openpyxl')
+        path = Path(__file__).resolve().parent / f"source_data/{data_file}"
+        fips_codes_df = pd.read_excel(path, header=None, engine='openpyxl')
         fips_codes = set(fips_codes_df[0].astype(str).str.pad(width=11, side='left', fillchar='0'))
     
     # DataFrame to store all results
