@@ -12,15 +12,15 @@ The following example:
         {
             "prompt": "What is the average life expectancy in Los Angeles with a population above 20000",
             "function_name": "mean",
-            "parameters": ["demographics.LIFEEXP"],
+            "parameters": ["psc_124"],
             "conditions": [
                 {
-                    "variable_name": "main.totalPop",
+                    "variable_name": "psc_142",
                     "restriction": ["> 20000"],
                     "boolean_operator": ""
                 },
                 {
-                    "variable_name": "city",
+                    "variable_name": "psc_61",
                     "restriction": ["== Los Angeles"],
                     "boolean_operator": ""
                 }
@@ -38,7 +38,7 @@ The following example:
         {
             "prompt": "Make me a map of particulate matter in Los Angeles",
             "function_name": "map",
-            "parameters": ["main.RAW_E_PM25", "", "Los Angeles"],
+            "parameters": ["psc_138", "", "Los Angeles"],
             "conditions": [
                 {
                     "variable_name": "",
@@ -59,15 +59,15 @@ The following example:
         {
             "prompt": "Make me a green-red map of baseline health in Chicago where life expectancy is greater than 40 or particulate air is higher than 8",
             "function_name": "map",
-            "parameters": ["baseline_health", "green-red", "Chicago"],
+            "parameters": ["psc_5", "green-red", "Chicago"],
             "conditions": [
                 {
-                    "variable_name": "demographics.LIFEEXP",
+                    "variable_name": "psc_124",
                     "restriction": ["> 40"],
                     "boolean_operator": ""
                 },
                 {
-                    "variable_name": "main.RAW_E_PM25",
+                    "variable_name": "psc_138",
                     "restriction": ["> 8"],
                     "boolean_operator": "OR"
                 }
@@ -85,10 +85,10 @@ The following example:
         {
             "prompt": "What is the percent of english speaking populations in Chicago",
             "function_name": "status",
-            "parameters": ["demographics.P_ENGLISH"],
+            "parameters": ["psc_28"],
             "conditions": [
                 {
-                    "variable_name": "city",
+                    "variable_name": "psc_61",
                     "restriction": ["== Chicago"],
                     "boolean_operator": ""
                 }
@@ -98,15 +98,36 @@ The following example:
 
     [INST] Here is another example:
 
-    Make me a map of baseline health in Chicago.
+    Give me the average psc_78 in Chicago.
 
     Should be converted to [/INST]
 
     "queries" : [
         {
-            "prompt": "Make me a map of baseline health in Chicago",
+            "prompt": "Give me the average resilience score in Chicago",
+            "function_name": "abg",
+            "parameters": ["psc_78"],
+            "conditions": [
+                {
+                    "variable_name": "psc_61",
+                    "restriction": ["== Chicago"],
+                    "boolean_operator": ""
+                }
+            ]
+        }
+    ]
+
+    [INST] Here is another example:
+
+    Make me a map of psc_5 in Chicago.
+
+    Should be converted to [/INST]
+
+    "queries" : [
+        {
+            "prompt": "Make me a map of psc_5 in Chicago",
             "function_name": "map",
-            "parameters": ["baseline_health", "", "Chicago"],
+            "parameters": ["psc_5", "", "Chicago"],
             "conditions": [
                 {
                     "variable_name": "",
@@ -127,7 +148,7 @@ The following example:
         {
             "prompt": "Make me a map of social vulnerability score in Chicago",
             "function_name": "map",
-            "parameters": ["social_vul_score", "", "Chicago"],
+            "parameters": ["psc_77", "", "Chicago"],
             "conditions": [
                 {
                     "variable_name": "",
@@ -148,7 +169,7 @@ The following example:
         {
             "prompt": "Make me a map of resilience score in Chicago",
             "function_name": "map",
-            "parameters": ["resilience_score", "", "Chicago"],
+            "parameters": ["psc_78", "", "Chicago"],
             "conditions": [
                 {
                     "variable_name": "",
@@ -158,6 +179,7 @@ The following example:
             ]
         }
     ]
+
 
     [INST] Here is another example:
 
@@ -169,7 +191,7 @@ The following example:
         {
             "prompt": "Make me a map of people who have one or two components contributing to social vulnerability in Los Angeles",
             "function_name": "map",
-            "parameters": ["estimated_number_of_individuals_with_one_two_components_of_social_vulnerability", "", "Los Angeles"],
+            "parameters": ["psc_176", "", "Los Angeles"],
             "conditions": [
                 {
                     "variable_name": "",
@@ -180,38 +202,62 @@ The following example:
         }
     ]
 
+    
     [INST] Here is another example:
 
-    Make me a green map of white populations in Los Angeles
+    Give me the average asian populations in Los Angeles
 
     Should be converted to [/INST]
 
     "queries" : [
         {
-            "prompt": "Make me a green map of white populations in Los Angeles",
-            "function_name": "map",
-            "parameters": ["demographics.P_NHWHITE", "green", "Los Angeles"],
+            "prompt": "Give me the average asian populations in Los Angeles",
+            "function_name": "avg",
+            "parameters": ["psc_159"],
             "conditions": [
                 {
-                    "variable_name": "",
-                    "restriction": [""],
+                    "variable_name": "psc_61",
+                    "restriction": ["== Los Angeles"],
                     "boolean_operator": ""
                 }
             ]
         }
     ]
 
+    
     [INST] Here is another example:
 
-    Make me a blue map of the non hispanic white populations in Los Angeles
+    Give me the top 5 asian populations in Los Angeles
 
     Should be converted to [/INST]
 
     "queries" : [
         {
-            "prompt": "Make me a blue map of white populations in Los Angeles",
+            "prompt": "Make me a green map of asian populations in Los Angeles",
+            "function_name": "top_k",
+            "parameters": ["5", "psc_159", "psc_159"],
+            "conditions": [
+                {
+                    "variable_name": "psc_61",
+                    "restriction": ["== Los Angeles"],
+                    "boolean_operator": ""
+                }
+            ]
+        }
+    ]
+
+    
+    [INST] Here is another example:
+
+    Make me a green map of asian populations in Los Angeles
+
+    Should be converted to [/INST]
+
+    "queries" : [
+        {
+            "prompt": "Make me a green map of asian populations in Los Angeles",
             "function_name": "map",
-            "parameters": ["demographics.P_NHWHITE", "blue", "Los Angeles"],
+            "parameters": ["psc_159", "green", "Los Angeles"],
             "conditions": [
                 {
                     "variable_name": "",
@@ -224,7 +270,28 @@ The following example:
 
     [INST] Here is another example:
 
-    Make me a orange map of the non hispanic white populations in Los Angeles
+    Make me a blue map of black populations in Los Angeles
+
+    Should be converted to [/INST]
+
+    "queries" : [
+        {
+            "prompt": "Make me a blue map of black populations in Los Angeles",
+            "function_name": "map",
+            "parameters": ["psc_157", "blue", "Los Angeles"],
+            "conditions": [
+                {
+                    "variable_name": "",
+                    "restriction": [""],
+                    "boolean_operator": ""
+                }
+            ]
+        }
+    ]
+
+    [INST] Here is another example:
+
+    Make me a orange map of white populations in Los Angeles
 
     Should be converted to [/INST]
 
@@ -232,7 +299,7 @@ The following example:
         {
             "prompt": "Make me a orange map of white populations in Los Angeles",
             "function_name": "map",
-            "parameters": ["demographics.P_NHWHITE", "orange", "Los Angeles"],
+            "parameters": ["psc_156", "orange", "Los Angeles"],
             "conditions": [
                 {
                     "variable_name": "",
@@ -253,7 +320,7 @@ The following example:
         {
             "prompt": "Make me a orange map of earthquake risk in Los Angeles",
             "function_name": "map",
-            "parameters": ["earthquake_risk", "orange", "Los Angeles"],
+            "parameters": ["psc_82", "orange", "Los Angeles"],
             "conditions": [
                 {
                     "variable_name": "",
@@ -266,18 +333,18 @@ The following example:
 
     [INST] Here is another example:
 
-    Make me a red-green map of main.NUM_BROWNFIELD in Los Angeles where main.RAW_E_PM25 is greater than 4
+    Make me a red-green map of the number of brownfields in Los Angeles where pariculate matter is greater than 4
 
     Should be converted to [/INST]
 
     "queries" : [
         {
-            "prompt": "Make me a blue map of white populations in Los Angeles",
+            "prompt": "Make me a red-green map of the number of brownfields in Los Angeles where pariculate matter is greater than 4",
             "function_name": "map",
-            "parameters": ["main.NUM_BROWNFIELD", "red-green", "Los Angeles"],
+            "parameters": ["psc_144", "red-green", "Los Angeles"],
             "conditions": [
                 {
-                    "variable_name": "main.RAW_E_PM25",
+                    "variable_name": "psc_138",
                     "restriction": ["> 4"],
                     "boolean_operator": ""
                 }

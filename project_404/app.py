@@ -21,7 +21,18 @@ def start_chatbot(ngrok_tunnel_key):
         if prompt in ["q","quit", "quit()"]:
             break
         
-        answers = function_calling_bot.call_functions(prompt)
+        try:
+            answers = function_calling_bot.call_functions(prompt)
+        except ValueError:
+            answers = "Apologies, it seems that there isn't enough data for me " +\
+                f"to fulfill your request, {prompt}. Please try again."
+        except NameError:
+            answers = "Apologies, I am having difficulty understanding your request " +\
+                f"{prompt}. Please try again."
+        except:
+            answers = "Apologies, I am having difficulty understanding your request " +\
+                f"{prompt}. Please try again."
+
         response_bot.responds_with_answers(answers)
 
 
@@ -51,6 +62,7 @@ def run():
             if ngrok_tunnel_key in ["q","quit", "quit()"]:
                 sys.exit()
             else:
+                print("\n\nInitializing chatbot. This will take a moment.")
                 start_chatbot(ngrok_tunnel_key)
 
         else:
