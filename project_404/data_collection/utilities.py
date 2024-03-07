@@ -40,7 +40,7 @@ def merge_dfs_to_csv(list_of_dfs, name_of_csv):
 
     merged_df = pd.concat(list_of_dfs)
 
-    merged_df.to_csv(f"data_collection/output_data/{name_of_csv}")
+    merged_df.to_csv(f"project_404/data_collection/output_data/{name_of_csv}")
 
     return merged_df
 
@@ -72,7 +72,7 @@ def clean_epa(epa_df):
         "main.RAW_E_PM25", "main.RAW_E_RSEI_AIR", "main.stateAbbr", "main.stateName",
         "main.totalPop", "main.NUM_AIRPOLL", "main.NUM_BROWNFIELD", "main.NUM_HOSPITAL",
         "main.statLayerCount", "main.statLayerZeroPopCount", "main.weightLayerCount",
-        "main.distance", "main.unit", "geo_id", "main.areatype", "main.statlevel",
+        "main.distance", "main.unit", "main.areatype", "main.statlevel",
         "main.placename", "extras.RAW_HI_LIFEEXPPCT", "extras.RAW_HI_ASTHMA",
         "extras.RAW_HI_DISABILITYPCT", "extras.RAW_CG_NOHINCPCT", "extras.RAW_CI_FLOOD",
         "extras.RAW_CI_FLOOD30", "extras.RAW_CI_FIRE", "extras.RAW_CI_FIRE30"

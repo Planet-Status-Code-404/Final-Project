@@ -2,6 +2,7 @@ import pandas as pd
 import requests
 from sqlalchemy import create_engine
 import seaborn as sns
+import matplotlib.pyplot as plt 
 
 def collect_epa_data_from(city, max_rows, data_file):
     """
@@ -18,12 +19,12 @@ def collect_epa_data_from(city, max_rows, data_file):
 
     #Only Chicago fips codes are in a cvs file and formatted differently.
     if city.lower() == 'chicago':
-        fips_codes_df = pd.read_csv(f"data_collection/source_data/{data_file}")
+        fips_codes_df = pd.read_csv(f"project_404/data_collection/source_data/{data_file}")
         fips_codes_df['Processed'] = fips_codes_df.iloc[:, 0].apply(lambda x: str(int(x * 100)).ljust(6, '0'))
         base_fips = "17031"
         fips_codes = {base_fips + processed_id for processed_id in fips_codes_df['Processed']}
     else:
-        fips_codes_df = pd.read_excel(f"data_collection/source_data/{data_file}", header=None, engine='openpyxl')
+        fips_codes_df = pd.read_excel(f"project_404/data_collection/source_data/{data_file}", header=None, engine='openpyxl')
         fips_codes = set(fips_codes_df[0].astype(str).str.pad(width=11, side='left', fillchar='0'))
     
     # DataFrame to store all results
@@ -49,7 +50,7 @@ def collect_epa_data_from(city, max_rows, data_file):
         else:
             fail_count += 1
 
-    print(f"Success: {success_count}, Failures: {fail_count}")
+    print(f"{city}: Success: {success_count}, Failures: {fail_count}")
     return data
 
 def visualize_data(df: pd.DataFrame, columns: list):
@@ -58,6 +59,7 @@ def visualize_data(df: pd.DataFrame, columns: list):
 
     Parameters:
     - df: DataFrame to visualize.
+    - columns: List of column names to be visualized.
 
     Returns:
     - None.
@@ -67,12 +69,20 @@ def visualize_data(df: pd.DataFrame, columns: list):
     # %pip install --upgrade numpy
 
 
+    # If you don't already have seaborn
+    # %pip install --upgrade seaborn
+    # %pip install --upgrade numpy
+
     # Setting the theme
     sns.set_theme(style='darkgrid', palette='deep', font='sans-serif', font_scale=1, color_codes=True, rc=None)
 
     # Convert to numeric
     df[columns] = df[columns].apply(pd.to_numeric)
 
-    sns.pairplot(df, vars =columns,height=3)
+    # Generate the pairplot
+    sns.pairplot(df, vars=columns, height=3)
+    
+    # Display the plot
+    plt.show()
     
 

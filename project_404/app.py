@@ -40,8 +40,11 @@ def data_collection_epa(cities: list, max_rows, visualization: bool, columns_to_
         columns_to_viz: list of column names, suggested to be between 1-3, see Readme file for column names.
 
         Output: creates a "EPA_Data.csv" in data_collection/output_data
-    """
-    #  
+
+    Example call: 
+    app.data_collection_epa(["Chicago", "Dallas", "New_Orleans", "Houston", "Los_Angeles"], 
+                            5, True, ["demographics.P_LOWINC","demographics.PCT_MINORITY"])
+    """  
      list_of_dfs = []
      for city in cities:
         if city.lower() == 'chicago':
@@ -52,11 +55,11 @@ def data_collection_epa(cities: list, max_rows, visualization: bool, columns_to_
             df = epa.collect_epa_data_from(city, max_rows, f"{city}_Tract_ID.xlsx")
             df = utilities.clean_epa(df)
             list_of_dfs.append(df)
-        if visualization:
-         epa.visualize_data(df, columns_to_viz)
-   
 
-     utilities.merge_dfs_to_csv(list_of_dfs, "EPA_Data.csv")
+     merged_df = utilities.merge_dfs_to_csv(list_of_dfs, "EPA_Data.csv")
+
+     if visualization:
+         epa.visualize_data(merged_df, columns_to_viz)
      
      
 
