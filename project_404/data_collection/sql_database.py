@@ -31,7 +31,7 @@ def insert_tables_to_database(csv_directory_path, db_file_path):
                 csv_file_path = os.path.join(root, file)
                 table_name = os.path.splitext(file)[0]
 
-                with open(csv_file_path, "r") as csv_file:
+                with open(csv_file_path, "r", encoding="utf-8") as csv_file:
                     csv_reader = csv.reader(csv_file)
                     headers = next(csv_reader)
 
@@ -59,14 +59,31 @@ def insert_tables_to_database(csv_directory_path, db_file_path):
                     cursor.execute(table_creation_sql)
 
                     # Insert data into the table with error handling
+                    row_number = 0
                     for row in csv_reader:
+                        row_number += 1
                         try:
                             cursor.execute(
                                 f"INSERT INTO {table_name} VALUES ({','.join(['?'] * len(row))})",
                                 row,
                             )
+                        except UnicodeDecodeError as e:
+                            print(
+                                f"Skipping row {row_number} due to UnicodeDecodeError: {e}"
+                            )
+                            continue
                         except sqlite3.IntegrityError as e:
                             pass
+                    # for row in csv_reader:
+                    #     try:
+                    #         cursor.execute(
+                    #             f"INSERT INTO {table_name} VALUES ({','.join(['?'] * len(row))})",
+                    #             row,
+                    #         )
+                    #     except UnicodeDecodeError as e:
+                    #         print(f"Skipping row {row} due to UnicodeDecodeError: {e}")
+                    #     except sqlite3.IntegrityError as e:
+                    #         pass
             print("Database created and Tables added")
     connection.commit()
     connection.close()
