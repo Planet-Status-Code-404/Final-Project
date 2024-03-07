@@ -145,6 +145,7 @@ class agent_functions:
             "los angeles": (34.052235, -118.243683),
             "seattle": (47.608013, -122.335167),
             "houston": (29.749907, -95.358421),
+            "dallas": (32.776665, -96.796989)
         }
         state_fips = {
             "chicago": "17",

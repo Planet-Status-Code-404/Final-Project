@@ -4,6 +4,7 @@ from project_404.data_collection import richmond
 from project_404.data_collection import epa
 from project_404.data_collection import utilities
 from project_404.chatbot.model.agents import function_calling_agent, response_agent
+from project_404.chatbot.utilities import function_calling_agent, response_agent
 
 
 def data_collection(state_list):

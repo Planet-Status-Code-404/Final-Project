@@ -74,11 +74,9 @@ def create_data_documentation():
     std_df = std_df[[1, 2, 0]]
     std_df.columns = ["description", "original variable name", "dataset"]
     std_df.index.name = "variable name"
-
-    pd.DataFrame.to_markdown(
-        std_df, buf=pathlib.Path(__file__).parent / "~Documentation/variable_names.md"
-    )
-    pd.DataFrame.to_html(
-        std_df,
-        buf=pathlib.Path(__file__).parent / "~Documentation/variable_names_other.html",
-    )
+    std_df["description"] = std_df["description"].str.replace("\n", " ").str.strip()
+ 
+    pd.DataFrame.to_html(std_df, justify="center",
+                         buf=pathlib.Path(__file__).parent / "~Documentation/variable_names.html")
+    
+    return std_df
