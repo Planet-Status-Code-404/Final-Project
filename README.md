@@ -16,7 +16,7 @@ To run the data collection code, run:
 $ poetry run python -m project_404 data_collection 
 </p>
 
-This process will take a few moments. After data_collection is complete you can then generate the SQL database using the command line input,
+This process will take a few moments. After data_collection is complete you can then generate the SQL database using the command line input:
 <p align="center">
 $ poetry run python -m project_404 sql_database 
 </p>
