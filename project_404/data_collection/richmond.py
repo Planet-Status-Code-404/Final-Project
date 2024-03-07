@@ -32,6 +32,8 @@ class Tract:  # this code has been taken from agents.py
 # This section of the file contains data collection, processing,manipulation,#
 # and cleaning functions for the Richmond Redlining dataset.                 #
 #############################################################################
+
+
 def clean_richmond_data():
     """
     Purpose: Get data from the Richmond Redlining Mapping Inequality dataset
@@ -80,7 +82,6 @@ def clean_redlined_with_tract_data():
     Tract class. These states are "LA", "IL", "TX", "WA", "CA".
     Output: CSV
     """
-    # state_list = ["LA", "IL", "TX", "WA", "CA"]
     redlining_with_tracts_df = matching_tracts()
     redlining_with_tracts_df.columns = (
         redlining_with_tracts_df.columns.str.lower().str.replace("geoid", "geo_id")
@@ -216,7 +217,7 @@ def combine_cvi_df():
      Inputs: None.
      Output: New CSV.
     """
-    state_list = ["LA", "IL", "TX", "WA", "CA"]
+
     df_cvi_master = clean_climate_vul_master()
     df_cvi_indicators = clean_climate_vul_indicators()
     merged_cvi_df = pd.merge(
