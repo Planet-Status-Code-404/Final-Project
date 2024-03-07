@@ -1,16 +1,73 @@
 import sys
+from project_404.data_collection import census_data
+from project_404.data_collection import richmond
+from project_404.data_collection import epa
+from project_404.data_collection import utilities
 from project_404.chatbot.model.agents import function_calling_agent, response_agent
 
-def data_collection():
-    pass
+
+def data_collection(state_list):
+    """
+    This function downloads and/or pre-process the dataset along with performing
+    cleaning operations and returns the csv files in the data_collection/output_data folder.
+    *For the state_list parameter please use: ["LA", "IL", "TX", "WA", "CA"]*
+    """
+    census_data.process_census_data_to_csv()
+    richmond.clean_redlined_with_tract_data(state_list)
+    richmond.combine_cvi_df()
+
+def data_collection_fema(state_list):
+    """
+    This function downloads and/or pre-process the dataset along with performing
+    cleaning operations and returns the csv files in the data_collection/output_data folder
+    for the FEMA data only!
+    *For the state_list parameter please use: ["Louisiana", "Illinois", "Texas", "Washington","California"]*
+    """
+    richmond.clean_fema_data(state_list)
+
+def data_collection_epa(cities: list, max_rows, visualization: bool, columns_to_viz: list):
+     """
+    This function downloads and/or pre-process the dataset along with performing
+    cleaning operations and returns the csv files in the data_collection/output_data folder
+        for the EPA data only!
+
+        Parameters:
+        city: enter only list combination of ["Chicago", "Dallas", "New_Orleans", "Houston", "Los_Angeles"]
+                Capitalization is important, it is case sensitive
+        max_rows: Choose any positive number but expect 2-10 seconds for each row API call. This is created for you 
+                    to be able to try a sample without waiting for the entire function to run.
+        visualization: if you want exploratory visualization mark as True and give a list of columns to visualize
+        columns_to_viz: list of column names, suggested to be between 1-3, see Readme file for column names.
+
+        Output: creates a "EPA_Data.csv" in data_collection/output_data
+
+    Example call: 
+    app.data_collection_epa(["Chicago", "Dallas", "New_Orleans", "Houston", "Los_Angeles"], 
+                            5, True, ["demographics.P_LOWINC","demographics.PCT_MINORITY"])
+    """  
+     list_of_dfs = []
+     for city in cities:
+        if city.lower() == 'chicago':
+            df = epa.collect_epa_data_from(city, max_rows, f"{city}_Tract_ID.csv")
+            df = utilities.clean_epa(df)
+            list_of_dfs.append(df)
+        else:
+            df = epa.collect_epa_data_from(city, max_rows, f"{city}_Tract_ID.xlsx")
+            df = utilities.clean_epa(df)
+            list_of_dfs.append(df)
+
+     merged_df = utilities.merge_dfs_to_csv(list_of_dfs, "EPA_Data.csv")
+
+     if visualization:
+         epa.visualize_data(merged_df, columns_to_viz)
 
 
 def start_chatbot(ngrok_tunnel_key):
     """
     This function uses a 3-stage process whereby a user can input natural
-    language that is converted into python function parameters, and 
+    language that is converted into python function parameters, and
     then is summarized back to the user.
-    
+
     """
     function_calling_bot = function_calling_agent(ngrok_tunnel_key)
     response_bot = response_agent(ngrok_tunnel_key)
@@ -18,7 +75,7 @@ def start_chatbot(ngrok_tunnel_key):
     while True:
         prompt = input("\n>>> ")
 
-        if prompt in ["q","quit", "quit()"]:
+        if prompt in ["q", "quit", "quit()"]:
             break
         
         try:
@@ -56,10 +113,12 @@ def run():
 
         if response in ["y", "yes", "Y", "Yes"]:
             print("Please input Ngrok tunnel key")
-            print("The key should mostly resemble <https://####-##-###-###-##.ngrok-free.app>")
+            print(
+                "The key should mostly resemble <https://####-##-###-###-##.ngrok-free.app>"
+            )
             ngrok_tunnel_key = input("\n>>> ")
-            
-            if ngrok_tunnel_key in ["q","quit", "quit()"]:
+
+            if ngrok_tunnel_key in ["q", "quit", "quit()"]:
                 sys.exit()
             else:
                 print("\n\nInitializing chatbot. This will take a moment.")
@@ -67,4 +126,3 @@ def run():
 
         else:
             sys.exit()
-        

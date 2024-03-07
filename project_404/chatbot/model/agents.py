@@ -307,7 +307,7 @@ class function_calling_agent(ollama.Client):
         for json_text in all_responses:
             try:
                 json_response_obj = json_response(json_text)
-                print("Question recieved. Searching for an answer.")
+                print("\nQuestion recieved. Searching for an answer.")
             except:
                 raise KeyError(
                     f"The request, '{json_text['prompt']}', could not be met"
