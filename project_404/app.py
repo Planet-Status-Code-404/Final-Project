@@ -7,24 +7,16 @@ from project_404.chatbot.model.agents import function_calling_agent, response_ag
 from project_404.chatbot.utilities import function_calling_agent, response_agent
 
 
-def data_collection(state_list):
+def data_collection():
     """
     This function downloads and/or pre-process the dataset along with performing
     cleaning operations and returns the csv files in the data_collection/output_data folder.
     *For the state_list parameter please use: ["LA", "IL", "TX", "WA", "CA"]*
     """
     census_data.process_census_data_to_csv()
-    richmond.clean_redlined_with_tract_data(state_list)
+    richmond.clean_redlined_with_tract_data()
     richmond.combine_cvi_df()
-
-def data_collection_fema(state_list):
-    """
-    This function downloads and/or pre-process the dataset along with performing
-    cleaning operations and returns the csv files in the data_collection/output_data folder
-    for the FEMA data only!
-    *For the state_list parameter please use: ["Louisiana", "Illinois", "Texas", "Washington","California"]*
-    """
-    richmond.clean_fema_data(state_list)
+    richmond.clean_fema_data()
 
 def data_collection_epa(cities: list, max_rows, visualization: bool, columns_to_viz: list):
      """
