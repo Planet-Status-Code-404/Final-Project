@@ -286,7 +286,7 @@ class function_calling_agent(ollama.Client):
             prompt=f"{self.prompt_prefix.prompt_prefix}\n{prompt}</s>",
             context=None,
         )
-
+        # Return valid JSON of output
         return json_repair.loads(
             (
                 "{"
