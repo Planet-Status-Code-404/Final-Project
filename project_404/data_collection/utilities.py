@@ -53,10 +53,13 @@ def clean_epa(epa_df):
     Returns: None, updates the EPA data file in place
     """
 
-    epa_df.drop(['demographics.P_NHWHITE', 'demographics.P_NHBLACK',
+    epa_df.drop(["demographics.P_NHWHITE", "demographics.P_NHBLACK",
             "demographics.P_NHASIAN","demographics.P_HISP",
             "demographics.P_NHAMERIND","demographics.P_NHHAWPAC",
             "demographics.P_NHOTHER_RACE","demographics.P_NHTWOMORE"], axis=1)
+
+    epa_df.rename(columns={"main.areaid": "geo_id"}, inplace=True)
+
 
     # List of columns to keep
     columns_to_keep = [
@@ -75,7 +78,7 @@ def clean_epa(epa_df):
         "main.distance", "main.unit", "main.areatype", "main.statlevel",
         "main.placename", "extras.RAW_HI_LIFEEXPPCT", "extras.RAW_HI_ASTHMA",
         "extras.RAW_HI_DISABILITYPCT", "extras.RAW_CG_NOHINCPCT", "extras.RAW_CI_FLOOD",
-        "extras.RAW_CI_FLOOD30", "extras.RAW_CI_FIRE", "extras.RAW_CI_FIRE30"
+        "extras.RAW_CI_FLOOD30", "extras.RAW_CI_FIRE", "extras.RAW_CI_FIRE30", "geo_id"
     ]
 
     epa_df = epa_df.loc[:, columns_to_keep]
