@@ -36,10 +36,8 @@ def clean_richmond_data():
     """
     Purpose: Get data from the Richmond Redlining Mapping Inequality dataset
     and filter it by state. The states that we are examining are: Louisiana,
-    Illinois, California, Texas, and Washington. However, for testing purposes you can
-    input any state you would like except Hawaii and Alaska.
-    Input: List of states whose data we want to explore. States should be inputted with
-    their abbreviation. Eg: Illinois should be 'IL'.
+    Illinois, California, Texas, and Washington. 
+    Input: None 
     Output: A dataframe with data for the specified list of states.
     """
     state_list = ["LA", "IL", "TX", "WA", "CA"]
@@ -81,8 +79,7 @@ def matching_tracts(
 def clean_redlined_with_tract_data():
     """
     Purpose: Create a CSV file with combined information from the 2 previous functions.
-    Inputs: List (list of states).Please input states using their abbreviated form.
-    This function will only work for states specified in the
+    Inputs: None 
     Tract class. These states are "LA", "IL", "TX", "WA", "CA".
     Output: new csv
     """
@@ -217,7 +214,7 @@ def clean_climate_vul_indicators(state_list):
 def combine_cvi_df():
     """
     *Special note: Please note that this CSV is too big to be uploaded to GitHub.
-    You can find it in the dropbox.
+    You can find it in the dropbox (https://www.dropbox.com/home/Planet%20Status%20Code%20404)
 
      Purpose:Combine the two Climate Vulnerability Index dataframes and produce a CSV.
      Inputs: None.
@@ -252,7 +249,7 @@ def clean_fema_data():
     """
     Purpose: Get data from the FEMA National Risk Index. All the column names
     have been hardcoded.
-    Inputs: State_list (the list of states for which we want data)
+    Inputs: none 
     Output: New pandas dataframe with our filtered data.
     """
     rename_fema_dict = {
